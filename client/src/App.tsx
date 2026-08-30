@@ -1,6 +1,7 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { Toaster } from "sonner";
 import { AuthProvider } from "@/context/AuthContext";
+import { I18nProvider } from "@/context/I18nContext";
 import { PublicLayout } from "@/layouts/PublicLayout";
 import { AdminLayout } from "@/layouts/AdminLayout";
 import { StudentLayout } from "@/layouts/StudentLayout";
@@ -8,6 +9,8 @@ import { RequireAuth, RedirectIfAuthed } from "@/components/RequireAuth";
 import { LandingPage, AboutPage } from "@/pages/public/Landing";
 import { ContactPage } from "@/pages/public/Contact";
 import { PublicCoursesPage } from "@/pages/public/Courses";
+import { StudyGuidePage } from "@/pages/public/StudyGuide";
+import { FaqPage } from "@/pages/public/Faq";
 import { ForgotPasswordPage, LoginPage, RegisterPage, ResetPasswordPage } from "@/pages/auth/AuthPages";
 import { AdminDashboardPage } from "@/pages/admin/Dashboard";
 import { AdminStudentsPage } from "@/pages/admin/Students";
@@ -24,6 +27,7 @@ import { StudentProfilePage, StudentProgressPage, StudentSettingsPage } from "@/
 export default function App() {
   return (
     <AuthProvider>
+      <I18nProvider>
       <BrowserRouter>
         <Toaster richColors position="top-right" />
         <Routes>
@@ -31,6 +35,8 @@ export default function App() {
             <Route path="/" element={<LandingPage />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/courses" element={<PublicCoursesPage />} />
+            <Route path="/study-guide" element={<StudyGuidePage />} />
+            <Route path="/faq" element={<FaqPage />} />
             <Route path="/contact" element={<ContactPage />} />
             <Route
               path="/register"
@@ -98,6 +104,7 @@ export default function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
+      </I18nProvider>
     </AuthProvider>
   );
 }

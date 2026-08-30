@@ -9,6 +9,7 @@ import {
   Briefcase,
   Calculator,
   ChevronDown,
+  ChevronLeft,
   ChevronRight,
   Database,
   FlaskConical,
@@ -31,6 +32,7 @@ import { FieldIcon, fieldWithIconPad } from "@/components/ui/field";
 import { cn, formatCompact, idOf, initials } from "@/lib/utils";
 
 const SAVED_KEY = "savedCourseIds";
+const PAGE_SIZE = 10;
 
 const SELECT_FOCUS =
   "catalog-select h-10 appearance-none rounded-[5px] border-2 border-slate-200 bg-white py-0 pl-4 pr-9 text-sm font-bold text-[#1E293B] outline-none ring-0 transition hover:border-[#7C3AED] focus:border-[#7C3AED] focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0";
@@ -50,7 +52,23 @@ const CANONICAL_CATEGORIES: { id: string; label: string; Icon: LucideIcon | null
 
 const VISIBLE_CHIP_COUNT = 9;
 
-type CoverKind = "python" | "js" | "react" | "node" | "ai" | "design" | "math" | "science" | "data" | "business" | "language" | "growth" | "default";
+type CoverKind =
+  | "python"
+  | "js"
+  | "react"
+  | "node"
+  | "ai"
+  | "design"
+  | "math"
+  | "science"
+  | "biology"
+  | "data"
+  | "sql"
+  | "business"
+  | "marketing"
+  | "language"
+  | "growth"
+  | "default";
 
 function coverKind(course: Course): CoverKind {
   const hay = `${course.title} ${course.category}`;
@@ -58,21 +76,43 @@ function coverKind(course: Course): CoverKind {
   if (/javascript|\bjs\b/i.test(hay)) return "js";
   if (/react/i.test(hay)) return "react";
   if (/node/i.test(hay)) return "node";
-  if (/ai|machine/i.test(hay)) return "ai";
+  if (/marketing|campaign/i.test(hay)) return "marketing";
+  if (/ai|machine|artificial/i.test(hay)) return "ai";
   if (/design|ui|ux|figma/i.test(hay)) return "design";
   if (/math/i.test(hay)) return "math";
+  if (/biology/i.test(hay)) return "biology";
   if (/physics|science/i.test(hay)) return "science";
-  if (/data/i.test(hay)) return "data";
-  if (/business/i.test(hay)) return "business";
+  if (/sql|query/i.test(hay)) return "sql";
+  if (/data|excel|analysis|chart/i.test(hay)) return "data";
+  if (/business|communication/i.test(hay)) return "business";
   if (/language|english/i.test(hay)) return "language";
   if (/personal|habit|growth/i.test(hay)) return "growth";
   return "default";
 }
 
+const COVER_SCENE: Record<CoverKind, string> = {
+  python: "from-[#0F172A] via-[#1E3A5F] to-[#0B1224]",
+  js: "from-[#111827] via-[#1F2937] to-[#0B1224]",
+  react: "from-[#042F2E] via-[#0F766E] to-[#022C22]",
+  node: "from-[#052E16] via-[#166534] to-[#022C22]",
+  ai: "from-[#1E1B4B] via-[#312E81] to-[#0F172A]",
+  design: "from-[#4C1D95] via-[#7C3AED] to-[#DB2777]",
+  math: "from-[#0C4A6E] via-[#0369A1] to-[#0B1224]",
+  science: "from-[#0F172A] via-[#164E63] to-[#083344]",
+  biology: "from-[#052E16] via-[#14532D] to-[#0B1224]",
+  data: "from-[#064E3B] via-[#059669] to-[#0F172A]",
+  sql: "from-[#0C4A6E] via-[#0284C7] to-[#0B1224]",
+  business: "from-[#1E3A8A] via-[#2563EB] to-[#0F172A]",
+  marketing: "from-[#4C1D95] via-[#7C3AED] to-[#312E81]",
+  language: "from-[#134E4A] via-[#0D9488] to-[#0F172A]",
+  growth: "from-[#581C87] via-[#A21CAF] to-[#0F172A]",
+  default: "from-[#0F172A] via-[#1E293B] to-[#0B1224]",
+};
+
 function CoverEmblem({ kind }: { kind: CoverKind }) {
   if (kind === "python") {
     return (
-      <svg viewBox="0 0 88 88" className="h-[4.75rem] w-[4.75rem] drop-shadow-[0_12px_18px_rgba(0,0,0,0.35)]">
+      <svg viewBox="0 0 88 88" className="h-[4.75rem] w-[4.75rem] drop-shadow-[0_16px_24px_rgba(0,0,0,0.4)]">
         <path fill="#3776AB" d="M44 8c-14 0-16 8-16 12v12h18v2H22c-8 0-14 5-14 16s6 16 14 16h6v-11c0-7 6-12 14-12h18V20c0-8-8-12-16-12zm-8 8a5 5 0 1 1 0 10 5 5 0 0 1 0-10z" />
         <path fill="#FFD43B" d="M44 80c14 0 16-8 16-12V56H42v-2h24c8 0 14-5 14-16s-6-16-14-16h-6v11c0 7-6 12-14 12H28v18c0 8 8 12 16 12zm8-8a5 5 0 1 1 0-10 5 5 0 0 1 0 10z" />
       </svg>
@@ -80,14 +120,14 @@ function CoverEmblem({ kind }: { kind: CoverKind }) {
   }
   if (kind === "js") {
     return (
-      <div className="grid h-[4.75rem] w-[4.75rem] place-items-center rounded-2xl bg-[#F7DF1E] shadow-[0_14px_24px_rgba(0,0,0,0.35)]">
-        <span className="text-2xl font-black tracking-tight text-[#111827]">JS</span>
+      <div className="grid h-[4.75rem] w-[4.75rem] place-items-center rounded-2xl bg-[#F7DF1E] shadow-[0_18px_28px_rgba(0,0,0,0.4)] ring-1 ring-white/20">
+        <span className="text-3xl font-black tracking-tight text-[#111827]">JS</span>
       </div>
     );
   }
   if (kind === "react") {
     return (
-      <svg viewBox="0 0 88 88" className="h-[4.75rem] w-[4.75rem]">
+      <svg viewBox="0 0 88 88" className="h-[4.75rem] w-[4.75rem] drop-shadow-[0_16px_24px_rgba(34,211,238,0.35)]">
         <ellipse cx="44" cy="44" rx="32" ry="12" fill="none" stroke="#22D3EE" strokeWidth="3" transform="rotate(60 44 44)" />
         <ellipse cx="44" cy="44" rx="32" ry="12" fill="none" stroke="#22D3EE" strokeWidth="3" transform="rotate(-60 44 44)" />
         <ellipse cx="44" cy="44" rx="32" ry="12" fill="none" stroke="#22D3EE" strokeWidth="3" />
@@ -97,78 +137,125 @@ function CoverEmblem({ kind }: { kind: CoverKind }) {
   }
   if (kind === "node") {
     return (
-      <div className="grid h-[4.75rem] w-[4.75rem] place-items-center rounded-2xl bg-[#339933] shadow-[0_14px_24px_rgba(0,0,0,0.35)]">
-        <span className="text-xl font-black text-white">JS</span>
+      <div className="grid h-[4.75rem] w-[4.75rem] place-items-center rounded-2xl bg-[#339933] shadow-[0_18px_28px_rgba(0,0,0,0.4)] ring-1 ring-white/15">
+        <span className="text-lg font-black tracking-wide text-white">Node</span>
       </div>
     );
   }
   if (kind === "ai") {
     return (
-      <div className="relative grid h-[4.75rem] w-[4.75rem] place-items-center">
-        <span className="absolute inset-0 rounded-full bg-[#3B82F6]/40 blur-md" />
-        <svg viewBox="0 0 88 88" className="relative h-full w-full">
-          <path d="M44 18c12 0 22 12 22 26 0 16-10 26-22 26S22 60 22 44C22 30 32 18 44 18z" fill="#60A5FA" opacity=".9" />
-          <circle cx="36" cy="40" r="4" fill="#DBEAFE" />
-          <circle cx="52" cy="40" r="4" fill="#DBEAFE" />
-          <path d="M34 52c6 6 14 6 20 0" fill="none" stroke="#DBEAFE" strokeWidth="3" strokeLinecap="round" />
+      <div className="relative grid h-[5rem] w-[5rem] place-items-center">
+        <span className="absolute inset-0 rounded-full bg-[#818CF8]/35 blur-xl" />
+        <svg viewBox="0 0 88 88" className="relative h-full w-full drop-shadow-[0_16px_24px_rgba(99,102,241,0.45)]">
+          <path d="M44 14c14 0 26 14 26 30 0 18-12 30-26 30S18 62 18 44C18 28 30 14 44 14z" fill="url(#aiGrad)" />
+          <defs>
+            <linearGradient id="aiGrad" x1="18" y1="14" x2="70" y2="74">
+              <stop stopColor="#A5B4FC" />
+              <stop offset="1" stopColor="#6366F1" />
+            </linearGradient>
+          </defs>
+          <circle cx="35" cy="40" r="4.5" fill="#EEF2FF" />
+          <circle cx="53" cy="40" r="4.5" fill="#EEF2FF" />
+          <path d="M34 54c6 7 14 7 20 0" fill="none" stroke="#EEF2FF" strokeWidth="3.2" strokeLinecap="round" />
         </svg>
       </div>
     );
   }
   if (kind === "design") {
     return (
-      <div className="relative h-[4.75rem] w-[4.75rem]">
-        <span className="absolute left-2 top-3 h-8 w-8 rounded-lg bg-[#F24E1E] shadow-lg" />
-        <span className="absolute left-7 top-1 h-8 w-8 rounded-lg bg-[#A259FF] shadow-lg" />
-        <span className="absolute left-5 top-8 h-8 w-8 rounded-lg bg-[#1ABCFE] shadow-lg" />
-        <span className="absolute left-10 top-10 h-8 w-8 rounded-lg bg-[#0ACF83] shadow-lg" />
+      <div className="relative h-[5rem] w-[5rem]">
+        <span className="absolute left-1 top-3 h-9 w-9 rotate-[-8deg] rounded-xl bg-[#F24E1E] shadow-[0_12px_20px_rgba(0,0,0,0.35)]" />
+        <span className="absolute left-7 top-0 h-9 w-9 rotate-[10deg] rounded-xl bg-[#A259FF] shadow-[0_12px_20px_rgba(0,0,0,0.35)]" />
+        <span className="absolute left-4 top-8 h-9 w-9 rounded-xl bg-[#1ABCFE] shadow-[0_12px_20px_rgba(0,0,0,0.35)]" />
+        <span className="absolute left-10 top-11 h-9 w-9 rotate-[-4deg] rounded-xl bg-[#0ACF83] shadow-[0_12px_20px_rgba(0,0,0,0.35)]" />
       </div>
     );
   }
   if (kind === "math") {
-    return <span className="text-5xl font-black text-white drop-shadow-[0_8px_16px_rgba(59,130,246,0.55)]">Σ</span>;
+    return <span className="text-6xl font-black text-white drop-shadow-[0_12px_22px_rgba(14,165,233,0.55)]">Σ</span>;
   }
   if (kind === "science") {
     return (
-      <svg viewBox="0 0 88 88" className="h-[4.75rem] w-[4.75rem]">
-        <ellipse cx="44" cy="44" rx="28" ry="10" fill="none" stroke="#67E8F9" strokeWidth="3" />
-        <ellipse cx="44" cy="44" rx="28" ry="10" fill="none" stroke="#38BDF8" strokeWidth="3" transform="rotate(60 44 44)" />
-        <ellipse cx="44" cy="44" rx="28" ry="10" fill="none" stroke="#22D3EE" strokeWidth="3" transform="rotate(-60 44 44)" />
-        <circle cx="44" cy="44" r="6" fill="#E0F2FE" />
+      <svg viewBox="0 0 88 88" className="h-[5rem] w-[5rem] drop-shadow-[0_16px_24px_rgba(34,211,238,0.4)]">
+        <ellipse cx="44" cy="44" rx="28" ry="10" fill="none" stroke="#67E8F9" strokeWidth="3.2" />
+        <ellipse cx="44" cy="44" rx="28" ry="10" fill="none" stroke="#38BDF8" strokeWidth="3.2" transform="rotate(60 44 44)" />
+        <ellipse cx="44" cy="44" rx="28" ry="10" fill="none" stroke="#22D3EE" strokeWidth="3.2" transform="rotate(-60 44 44)" />
+        <circle cx="44" cy="44" r="7" fill="#E0F2FE" />
       </svg>
     );
   }
-  if (kind === "data") {
+  if (kind === "biology") {
     return (
-      <svg viewBox="0 0 88 88" className="h-16 w-16 text-emerald-300">
-        <rect x="14" y="48" width="12" height="24" rx="3" fill="currentColor" />
-        <rect x="32" y="28" width="12" height="44" rx="3" fill="currentColor" />
-        <rect x="50" y="16" width="12" height="56" rx="3" fill="currentColor" />
-        <rect x="68" y="36" width="12" height="36" rx="3" fill="currentColor" />
+      <div className="relative flex h-[5rem] w-[5rem] items-end justify-center gap-2 drop-shadow-[0_16px_24px_rgba(16,185,129,0.35)]">
+        <span className="h-10 w-5 rounded-b-full rounded-t-md bg-gradient-to-b from-[#6EE7B7] to-[#059669] ring-2 ring-white/20" />
+        <span className="h-14 w-6 rounded-b-full rounded-t-md bg-gradient-to-b from-[#A7F3D0] to-[#10B981] ring-2 ring-white/25" />
+        <span className="h-8 w-5 rounded-b-full rounded-t-md bg-gradient-to-b from-[#34D399] to-[#047857] ring-2 ring-white/20" />
+        <span className="absolute -top-1 left-1/2 h-4 w-4 -translate-x-1/2 rounded-full bg-[#FDE68A] blur-[1px]" />
+      </div>
+    );
+  }
+  if (kind === "data" || kind === "sql") {
+    return (
+      <div className="relative flex h-[5rem] w-[5.5rem] items-end justify-center gap-1.5 drop-shadow-[0_16px_24px_rgba(16,185,129,0.35)]">
+        <span className="h-8 w-3.5 rounded-md bg-[#34D399]" />
+        <span className="h-12 w-3.5 rounded-md bg-[#6EE7B7]" />
+        <span className="h-16 w-3.5 rounded-md bg-[#A7F3D0]" />
+        <span className="h-10 w-3.5 rounded-md bg-[#10B981]" />
+        <span className="absolute -right-1 top-1 h-10 w-10 rounded-full border-[5px] border-[#FBBF24] border-r-transparent border-b-transparent" />
+      </div>
+    );
+  }
+  if (kind === "marketing") {
+    return (
+      <svg viewBox="0 0 96 96" className="h-[5rem] w-[5rem] drop-shadow-[0_18px_28px_rgba(124,58,237,0.45)]">
+        <path
+          fill="#F5F3FF"
+          d="M18 38c0-4 3-7 7-7h22l28-14v58L47 61H25c-4 0-7-3-7-7V38z"
+        />
+        <path fill="#A78BFA" d="M47 31l28-14v58L47 61V31z" />
+        <circle cx="72" cy="48" r="8" fill="#DDD6FE" opacity=".9" />
       </svg>
     );
   }
   if (kind === "business") {
-    return <Briefcase className="h-12 w-12 text-sky-300" />;
+    return (
+      <div className="grid h-[4.75rem] w-[4.75rem] place-items-center rounded-2xl bg-white/10 shadow-[0_18px_28px_rgba(0,0,0,0.35)] ring-1 ring-white/25 backdrop-blur-sm">
+        <Briefcase className="h-12 w-12 text-sky-200" strokeWidth={1.75} />
+      </div>
+    );
   }
   if (kind === "language") {
-    return <BookOpen className="h-12 w-12 text-teal-300" />;
+    return (
+      <div className="grid h-[4.75rem] w-[4.75rem] place-items-center rounded-2xl bg-white/10 shadow-[0_18px_28px_rgba(0,0,0,0.35)] ring-1 ring-white/25 backdrop-blur-sm">
+        <BookOpen className="h-12 w-12 text-teal-200" strokeWidth={1.75} />
+      </div>
+    );
   }
   if (kind === "growth") {
-    return <Users className="h-12 w-12 text-violet-300" />;
+    return (
+      <div className="grid h-[4.75rem] w-[4.75rem] place-items-center rounded-2xl bg-white/10 shadow-[0_18px_28px_rgba(0,0,0,0.35)] ring-1 ring-white/25 backdrop-blur-sm">
+        <Users className="h-12 w-12 text-fuchsia-200" strokeWidth={1.75} />
+      </div>
+    );
   }
-  return <GraduationCap className="h-12 w-12 text-white" />;
+  return (
+    <div className="grid h-[4.75rem] w-[4.75rem] place-items-center rounded-2xl bg-white/10 shadow-[0_18px_28px_rgba(0,0,0,0.35)] ring-1 ring-white/25 backdrop-blur-sm">
+      <GraduationCap className="h-12 w-12 text-white" strokeWidth={1.75} />
+    </div>
+  );
 }
 
 function CourseCover({ course }: { course: Course }) {
   if (course.thumbnailUrl) {
-    return <img src={course.thumbnailUrl} alt="" className="h-full w-full object-cover" />;
+    return <img src={course.thumbnailUrl} alt="" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />;
   }
   const kind = coverKind(course);
   return (
-    <div className="relative h-full w-full bg-[#0B1224]">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_38%,rgba(99,102,241,0.28),transparent_62%)]" />
-      <div className="relative z-10 flex h-full items-center justify-center">
+    <div className={cn("relative h-full w-full overflow-hidden bg-gradient-to-br", COVER_SCENE[kind])}>
+      <div className="pointer-events-none absolute -right-8 -top-10 h-36 w-36 rounded-full bg-white/10 blur-2xl" />
+      <div className="pointer-events-none absolute -bottom-10 -left-6 h-28 w-28 rounded-full bg-white/10 blur-2xl" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_70%_20%,rgba(255,255,255,0.16),transparent_45%)]" />
+      <div className="relative z-10 flex h-full items-center justify-center transition duration-500 group-hover:scale-105">
         <CoverEmblem kind={kind} />
       </div>
     </div>
@@ -207,7 +294,7 @@ function readSaved(): string[] {
   }
 }
 
-function CourseCard({
+export function CourseCard({
   course,
   href,
   maxEnroll,
@@ -231,7 +318,7 @@ function CourseCard({
 
   const body = (
     <>
-      <div className={cn("relative overflow-hidden bg-[#0B1224]", layout === "grid" ? "h-40" : "h-full min-h-[9.5rem] w-44 shrink-0 sm:w-52")}>
+      <div className={cn("relative overflow-hidden", layout === "grid" ? "h-44" : "h-full min-h-[9.5rem] w-44 shrink-0 sm:w-52")}>
         <CourseCover course={course} />
         {badge ? (
           <span className={cn("absolute left-3 top-3 rounded-md px-2 py-0.5 text-[11px] font-semibold", badge.className)}>
@@ -304,6 +391,7 @@ export function CourseCatalog({ compact = false }: { compact?: boolean }) {
   const category = params.get("category") || "";
   const level = params.get("level") || "";
   const sort = params.get("sort") || "popular";
+  const page = Math.max(1, Number.parseInt(params.get("page") || "1", 10) || 1);
   const [search, setSearch] = useState(qParam);
   const [view, setView] = useState<"grid" | "list">("grid");
   const chipRowRef = useRef<HTMLDivElement>(null);
@@ -333,6 +421,7 @@ export function CourseCatalog({ compact = false }: { compact?: boolean }) {
           if (nextQ === curQ) return prev;
           if (nextQ) next.set("q", nextQ);
           else next.delete("q");
+          next.delete("page");
           return next;
         },
         { replace: true }
@@ -349,22 +438,35 @@ export function CourseCatalog({ compact = false }: { compact?: boolean }) {
           if (v) next.set(k, v);
           else next.delete(k);
         });
+        if (!("page" in patch)) next.delete("page");
         return next;
       },
       { replace: true }
     );
   };
 
+  const setPage = (nextPage: number) => {
+    patchParams({ page: nextPage <= 1 ? "" : String(nextPage) });
+  };
+
   const catalog = useQuery({
-    queryKey: ["course-catalog", qParam, category, level, sort],
+    queryKey: ["course-catalog", qParam, category, level, sort, page],
     queryFn: async () =>
       (
         await api.get("/courses", {
-          params: { q: qParam || undefined, category: category || undefined, level: level || undefined, sort, status: "published", limit: 48 },
+          params: {
+            q: qParam || undefined,
+            category: category || undefined,
+            level: level || undefined,
+            sort,
+            status: "published",
+            page,
+            limit: PAGE_SIZE,
+          },
         })
       ).data as {
         data: Course[];
-        pagination: { total: number };
+        pagination: { page: number; limit: number; total: number; pages: number };
         meta?: { categories: string[] };
       },
   });
@@ -645,7 +747,7 @@ export function CourseCatalog({ compact = false }: { compact?: boolean }) {
       <section className="mt-6">
         {catalog.isLoading ? (
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i) => (
               <Skeleton key={i} className="h-80 rounded-2xl" />
             ))}
           </div>
@@ -654,21 +756,116 @@ export function CourseCatalog({ compact = false }: { compact?: boolean }) {
         ) : !courses.length ? (
           <EmptyState title="No courses match these filters." description="Try another category, level, or search term." />
         ) : (
-          <div className={cn(view === "grid" ? "grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4" : "grid gap-4")}>
-            {courses.map((course) => (
-              <CourseCard
-                key={idOf(course)}
-                course={course}
-                href={`/student/courses/${idOf(course)}`}
-                maxEnroll={maxEnroll}
-                saved={saved.includes(idOf(course))}
-                onToggleSave={toggleSave}
-                layout={view}
-              />
-            ))}
-          </div>
+          <>
+            <div className={cn(view === "grid" ? "grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4" : "grid gap-4")}>
+              {courses.map((course) => (
+                <CourseCard
+                  key={idOf(course)}
+                  course={course}
+                  href={`/student/courses/${idOf(course)}`}
+                  maxEnroll={maxEnroll}
+                  saved={saved.includes(idOf(course))}
+                  onToggleSave={toggleSave}
+                  layout={view}
+                />
+              ))}
+            </div>
+            <CatalogPagination
+              page={catalog.data?.pagination.page || page}
+              pages={catalog.data?.pagination.pages || 1}
+              total={catalog.data?.pagination.total || courses.length}
+              limit={PAGE_SIZE}
+              onPage={setPage}
+            />
+          </>
         )}
       </section>
+    </div>
+  );
+}
+
+function CatalogPagination({
+  page,
+  pages,
+  total,
+  limit,
+  onPage,
+}: {
+  page: number;
+  pages: number;
+  total: number;
+  limit: number;
+  onPage: (p: number) => void;
+}) {
+  if (total <= 0) return null;
+
+  const from = Math.min((page - 1) * limit + 1, total);
+  const to = Math.min(page * limit, total);
+
+  const items: (number | "ellipsis")[] = [];
+  if (pages <= 7) {
+    for (let i = 1; i <= pages; i++) items.push(i);
+  } else {
+    items.push(1);
+    if (page > 3) items.push("ellipsis");
+    const start = Math.max(2, page - 1);
+    const end = Math.min(pages - 1, page + 1);
+    for (let i = start; i <= end; i++) items.push(i);
+    if (page < pages - 2) items.push("ellipsis");
+    items.push(pages);
+  }
+
+  const btn =
+    "grid h-9 w-9 place-items-center rounded-[5px] border text-sm font-bold transition disabled:cursor-not-allowed disabled:opacity-40";
+
+  return (
+    <div className="relative mt-8 border-t border-slate-100 pt-6">
+      <div className="flex items-center justify-center gap-1.5">
+        <button
+          type="button"
+          aria-label="Previous page"
+          disabled={page <= 1}
+          onClick={() => onPage(page - 1)}
+          className={cn(btn, "border-slate-200 bg-white text-[#0F172A] hover:border-[#7C3AED] hover:text-[#7C3AED]")}
+        >
+          <ChevronLeft className="h-4 w-4" strokeWidth={2.4} />
+        </button>
+        {items.map((item, i) =>
+          item === "ellipsis" ? (
+            <span key={`e-${i}`} className="px-1 text-sm font-bold text-slate-400">
+              …
+            </span>
+          ) : (
+            <button
+              key={item}
+              type="button"
+              aria-label={`Page ${item}`}
+              aria-current={item === page ? "page" : undefined}
+              onClick={() => onPage(item)}
+              className={cn(
+                btn,
+                item === page
+                  ? "border-transparent bg-[#7C3AED] text-white shadow-[0_8px_16px_rgba(124,58,237,0.28)]"
+                  : "border-slate-200 bg-white text-[#0F172A] hover:border-[#7C3AED] hover:text-[#7C3AED]",
+              )}
+            >
+              {item}
+            </button>
+          ),
+        )}
+        <button
+          type="button"
+          aria-label="Next page"
+          disabled={page >= pages}
+          onClick={() => onPage(page + 1)}
+          className={cn(btn, "border-slate-200 bg-white text-[#0F172A] hover:border-[#7C3AED] hover:text-[#7C3AED]")}
+        >
+          <ChevronRight className="h-4 w-4" strokeWidth={2.4} />
+        </button>
+      </div>
+      <p className="mt-3 text-center text-sm font-semibold text-[#64748B] sm:absolute sm:right-0 sm:top-1/2 sm:mt-0 sm:-translate-y-1/2 sm:pt-6 sm:text-right">
+        Showing {from} to {to} of {total} courses
+      </p>
     </div>
   );
 }

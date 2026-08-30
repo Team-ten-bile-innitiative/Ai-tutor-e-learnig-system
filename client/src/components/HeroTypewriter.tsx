@@ -1,8 +1,7 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 
-const PREFIX = "Learn Smarter With Your Personal ";
-const PHRASES = ["AI Tutor", "Study Partner", "Learning Coach"];
+const PHRASES = ["Study Partner", "AI Tutor", "Learning Coach"];
 const LONGEST_PHRASE = PHRASES.reduce((a, b) => (a.length > b.length ? a : b));
 
 type HeroTypewriterProps = {
@@ -10,7 +9,6 @@ type HeroTypewriterProps = {
 };
 
 export function HeroTypewriter({ className }: HeroTypewriterProps) {
-  const [prefixCount, setPrefixCount] = useState(0);
   const [phraseIndex, setPhraseIndex] = useState(0);
   const [phraseCount, setPhraseCount] = useState(0);
   const [deleting, setDeleting] = useState(false);
@@ -26,31 +24,19 @@ export function HeroTypewriter({ className }: HeroTypewriterProps) {
 
   useEffect(() => {
     if (prefersReducedMotion) {
-      setPrefixCount(PREFIX.length);
       setPhraseCount(PHRASES[0].length);
       setDeleting(false);
       return;
     }
 
     const phrase = PHRASES[phraseIndex];
-    let delay = deleting ? 28 : prefixCount < PREFIX.length ? 42 : 58;
+    let delay = deleting ? 35 : 65 + Math.random() * 35;
 
-    if (!deleting && prefixCount < PREFIX.length) {
-      delay = 38 + Math.random() * 24;
-    } else if (!deleting && phraseCount < phrase.length) {
-      delay = 52 + Math.random() * 30;
-    }
-
-    if (!deleting && prefixCount === PREFIX.length && phraseCount === phrase.length) {
-      delay = 2400;
+    if (!deleting && phraseCount === phrase.length) {
+      delay = 2600; // pause before deleting
     }
 
     const timer = window.setTimeout(() => {
-      if (prefixCount < PREFIX.length) {
-        setPrefixCount((n) => n + 1);
-        return;
-      }
-
       if (!deleting && phraseCount < phrase.length) {
         setPhraseCount((n) => n + 1);
         return;
@@ -71,35 +57,44 @@ export function HeroTypewriter({ className }: HeroTypewriterProps) {
     }, delay);
 
     return () => window.clearTimeout(timer);
-  }, [prefixCount, phraseIndex, phraseCount, deleting, prefersReducedMotion]);
+  }, [phraseIndex, phraseCount, deleting, prefersReducedMotion]);
 
   const visiblePhrase = PHRASES[phraseIndex].slice(0, phraseCount);
-  const typing = !prefersReducedMotion && (prefixCount < PREFIX.length || phraseCount < PHRASES[phraseIndex].length || deleting);
+  const typing = !prefersReducedMotion && (phraseCount < PHRASES[phraseIndex].length || deleting);
 
   return (
-    <div
-      className={cn(
-        "hero-typewriter-lock mt-6 min-h-[5.5rem] sm:min-h-[5rem] lg:min-h-[7.75rem]",
-        className,
-      )}
-    >
-      <h1 className="text-[2.5rem] font-extrabold leading-[1.12] tracking-tight text-[#111827] sm:text-5xl lg:text-[3.5rem]">
-        <span className="sr-only">Learn Smarter With Your Personal AI Tutor</span>
+    <div className={cn("hero-typewriter-lock mt-6", className)}>
+      <h1 className="text-[2.5rem] font-extrabold leading-[1.2] tracking-tight text-[#111827] sm:text-5xl lg:text-[3.5rem]">
+        <span className="sr-only">Learn Smarter With Your Personal Study Partner</span>
         <span aria-hidden="true">
-          {PREFIX.slice(0, prefixCount)}
-          <span className="relative inline-block align-bottom">
-            <span className="invisible whitespace-nowrap" aria-hidden>
-              {LONGEST_PHRASE}
+          Learn Smarter With
+          <br />
+          Your Personal
+          <br />
+          {/* Inline flex row — no absolute positioning so descenders (g,p,y) are never clipped */}
+          <span className="inline-flex items-baseline" style={{ minWidth: 0 }}>
+            <span
+              className="whitespace-nowrap font-extrabold"
+              style={{
+                background: "linear-gradient(90deg, #EC4899 0%, #A855F7 60%, #8B5CF6 100%)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
+                paddingBottom: "0.08em",   /* ensures descenders are never cut */
+                lineHeight: "inherit",
+              }}
+            >
+              {visiblePhrase || "\u00A0" /* non-breaking space keeps line height when empty */}
             </span>
-            <span className="absolute left-0 top-0 whitespace-nowrap text-[#7C3AED]">{visiblePhrase}</span>
+            {/* blinking cursor */}
+            <span
+              className={cn(
+                "typewriter-cursor ml-0.5 inline-block align-[-0.08em]",
+                typing ? "typewriter-cursor-active" : "typewriter-cursor-idle",
+              )}
+              aria-hidden
+            />
           </span>
-          <span
-            className={cn(
-              "typewriter-cursor ml-0.5 inline-block align-[-0.08em]",
-              typing ? "typewriter-cursor-active" : "typewriter-cursor-idle",
-            )}
-            aria-hidden
-          />
         </span>
       </h1>
     </div>

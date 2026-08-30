@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -15,25 +16,41 @@ import {
   Medal,
   MessageSquareText,
   NotebookPen,
-  Quote,
   ShieldCheck,
   Smartphone,
   Sparkles,
+  Star,
   TrendingUp,
   UsersRound,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge, Card } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
+import { CourseCard } from "@/components/CourseCatalog";
+import { EmptyState, ErrorState, Skeleton } from "@/components/shared";
 import { api } from "@/lib/api";
 import type { Course } from "@/types";
 import { cn, idOf, formatStatCount } from "@/lib/utils";
 import { HeroCtaLock, HeroTypewriter } from "@/components/HeroTypewriter";
-import { scrollToId } from "@/layouts/PublicLayout";
+import { useI18n } from "@/context/I18nContext";
+
+const SAVED_KEY = "savedCourseIds";
+
+function readSaved(): string[] {
+  try {
+    const raw = localStorage.getItem(SAVED_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed.map(String) : [];
+  } catch {
+    return [];
+  }
+}
 
 export function LandingPage() {
+  const [saved, setSaved] = useState<string[]>(() => readSaved());
   const courses = useQuery({
     queryKey: ["landing-courses"],
-    queryFn: async () => (await api.get("/courses", { params: { status: "published", limit: 3 } })).data.data as Course[],
+    queryFn: async () =>
+      (await api.get("/courses", { params: { status: "published", sort: "popular", limit: 8 } })).data.data as Course[],
   });
   const platform = useQuery({
     queryKey: ["public-stats"],
@@ -48,6 +65,62 @@ export function LandingPage() {
   const studentsN = formatStatCount(platform.data?.students);
   const coursesN = formatStatCount(platform.data?.courses);
   const satisfactionN = platform.data?.satisfaction == null ? "—" : `${platform.data.satisfaction}%`;
+  const maxEnroll = Math.max(0, ...(courses.data || []).map((c) => c.enrollmentCount || 0));
+
+  const toggleSave = (id: string) => {
+    setSaved((prev) => {
+      const next = prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id];
+      localStorage.setItem(SAVED_KEY, JSON.stringify(next));
+      return next;
+    });
+  };
+
+  const testimonialsData = [
+    {
+      name: "Ahmed H.",
+      quote: "The AI tutor explained linear equations in a way my textbook never did. I finally understand math and even enjoy it now!",
+      role: "High School Student",
+      subject: "Mathematics",
+      avatar: "https://i.pravatar.cc/150?u=31",
+    },
+    {
+      name: "Sara M.",
+      quote: "Quizzes feel fair, and the review after a mistake actually helps me improve. It's like having a personal tutor 24/7.",
+      role: "University Student",
+      subject: "Physics",
+      avatar: "https://i.pravatar.cc/150?u=47",
+    },
+    {
+      name: "Omar N.",
+      quote: "I can continue a lesson on my phone and pick up the same progress later. It fits perfectly into my busy schedule.",
+      role: "College Student",
+      subject: "Computer Science",
+      avatar: "https://i.pravatar.cc/150?u=60",
+    },
+    {
+      name: "Lisa K.",
+      quote: "I used to dread studying, but this platform makes it genuinely fun. The interactive examples are a game-changer!",
+      role: "Middle School",
+      subject: "Science",
+      avatar: "https://i.pravatar.cc/150?u=24",
+    }
+  ];
+
+  const [activeTestimonial, setActiveTestimonial] = useState(1);
+
+  const handlePrevTestimonial = () => {
+    setActiveTestimonial((prev) => (prev - 1 + testimonialsData.length) % testimonialsData.length);
+  };
+
+  const handleNextTestimonial = () => {
+    setActiveTestimonial((prev) => (prev + 1) % testimonialsData.length);
+  };
+
+  const visibleTestimonials = [
+    { ...testimonialsData[(activeTestimonial - 1 + testimonialsData.length) % testimonialsData.length], isCenter: false, key: 'left' },
+    { ...testimonialsData[activeTestimonial], isCenter: true, key: 'center' },
+    { ...testimonialsData[(activeTestimonial + 1) % testimonialsData.length], isCenter: false, key: 'right' },
+  ];
 
   return (
     <div>
@@ -68,14 +141,13 @@ export function LandingPage() {
                   Study interactive courses, take quizzes, and get instant help from AI Tutor anytime you need.
                 </p>
                 <div className="mt-9 flex flex-wrap items-center gap-4">
-                  <button
-                    type="button"
-                    onClick={() => scrollToId("stats")}
+                  <Link
+                    to="/courses"
                     className="group inline-flex h-14 items-center gap-2.5 rounded-lg bg-[#7C3AED] px-7 text-base font-bold text-white opacity-100 shadow-[0_12px_28px_rgba(124,58,237,0.38)] transition hover:bg-[#6D28D9]"
                   >
                     Start Learning
                     <GraduationCap className="start-icon h-5 w-5 text-white" strokeWidth={2.6} />
-                  </button>
+                  </Link>
                   <Link
                     to="/courses"
                     className="explore-cta group inline-flex h-14 items-center gap-3 rounded-lg border border-[#3E5BFF]/45 py-1 pl-1 pr-5 opacity-100"
@@ -265,12 +337,12 @@ export function LandingPage() {
       </section>
 
       <section id="ai-tutor" className="scroll-section mx-auto max-w-6xl px-4 py-16">
-        <div className="relative overflow-hidden rounded-3xl border border-[#DDD6FE]/70 bg-gradient-to-br from-[#F5F3FF] via-white to-[#EEF2FF] p-6 shadow-[0_16px_40px_rgba(124,58,237,0.1)] sm:p-10">
+        <div className="relative overflow-hidden rounded-3xl border border-[#DDD6FE]/70 bg-gradient-to-br from-[#F5F3FF] via-white to-[#EEF2FF] p-6 shadow-[0_16px_40px_rgba(124,58,237,0.1)] sm:p-10 min-h-[500px]">
           <div className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-[#DDD6FE]/45 blur-3xl" />
           <div className="pointer-events-none absolute -bottom-10 left-1/4 h-40 w-40 rounded-full bg-[#BFDBFE]/30 blur-3xl" />
           <div className="relative grid items-stretch gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:gap-12">
             <div className="flex flex-col justify-center">
-              <span className="inline-flex items-center gap-2 rounded-full bg-[#EDE9FE] px-3.5 py-1.5 text-sm font-bold text-[#6D28D9] ring-1 ring-[#7C3AED]/15">
+              <span className="inline-flex items-center gap-2 text-sm font-bold text-[#6D28D9]">
                 <BotMessageSquare className="h-4 w-4" strokeWidth={2.25} />
                 AI Tutor
               </span>
@@ -321,7 +393,7 @@ export function LandingPage() {
                 <div
                   key={t}
                   className={cn(
-                    "group/ai-prompt flex h-full min-h-[5.25rem] items-center gap-3 rounded-2xl border border-white/90 bg-white/85 p-4 shadow-[0_8px_22px_rgba(15,23,42,0.06)] backdrop-blur-sm transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_14px_28px_rgba(15,23,42,0.08)]",
+                    "group/ai-prompt flex h-full min-h-[160px] items-center gap-4 rounded-2xl border border-white/90 bg-white/85 p-6 shadow-[0_8px_22px_rgba(15,23,42,0.06)] backdrop-blur-sm transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_14px_28px_rgba(15,23,42,0.08)]",
                     card,
                   )}
                 >
@@ -340,79 +412,137 @@ export function LandingPage() {
         <div className="mx-auto max-w-6xl px-4">
           <div className="flex items-end justify-between gap-4">
             <div>
-              <h2 className="text-3xl font-bold">Courses</h2>
-              <p className="mt-1 text-muted">Start with published programs from the live catalog.</p>
+              <h2 className="text-3xl font-bold text-[#0F172A]">Courses</h2>
+              <p className="mt-1 text-sm font-semibold text-slate-500">Start with published programs from the live catalog.</p>
             </div>
-            <Link to="/courses" className="text-sm font-semibold text-primary">
+            <Link to="/courses" className="text-sm font-bold text-[#7C3AED] hover:text-[#6D28D9]">
               View all
             </Link>
           </div>
-          <div className="mt-8 grid gap-4 md:grid-cols-3">
-            {(courses.data || []).map((c) => (
-              <Link key={idOf(c)} to={`/student/courses/${idOf(c)}`}>
-                <Card className="h-full p-5 hover:border-primary">
-                  <Badge tone="indigo">{c.category}</Badge>
-                  <h3 className="mt-3 font-semibold">{c.title}</h3>
-                  <p className="mt-2 line-clamp-3 text-sm text-muted">{c.description}</p>
-                  <p className="mt-4 text-xs capitalize text-slate-500">
-                    {c.level} · {c.duration}
-                  </p>
-                </Card>
-              </Link>
-            ))}
+          <div className="mt-8">
+            {courses.isLoading ? (
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+                {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+                  <Skeleton key={i} className="h-80 rounded-2xl" />
+                ))}
+              </div>
+            ) : courses.error ? (
+              <ErrorState message={courses.error.message} onRetry={() => courses.refetch()} />
+            ) : !(courses.data || []).length ? (
+              <EmptyState title="No published courses yet." description="Check back soon for new programs." />
+            ) : (
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+                {(courses.data || []).map((course) => (
+                  <CourseCard
+                    key={idOf(course)}
+                    course={course}
+                    href={`/student/courses/${idOf(course)}`}
+                    maxEnroll={maxEnroll}
+                    saved={saved.includes(idOf(course))}
+                    onToggleSave={toggleSave}
+                    layout="grid"
+                  />
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </section>
 
-      <section className="bg-indigo-950 py-16 text-white">
-        <div className="mx-auto max-w-6xl px-4">
-          <h2 className="text-center text-3xl font-bold">What learners say</h2>
-          <div className="mt-10 grid gap-5 md:grid-cols-3">
-            {[
-              ["Ahmed H.", "The AI tutor explained linear equations in a way my textbook never did."],
-              ["Sara M.", "Quizzes feel fair, and the review after a mistake actually helps me improve."],
-              ["Omar N.", "I can continue a lesson on my phone and pick up the same progress later."],
-            ].map(([name, quote]) => (
-              <div key={name} className="rounded-2xl bg-white/10 p-5">
-                <Quote className="h-5 w-5 text-indigo-200" />
-                <p className="mt-3 text-sm text-indigo-50">{quote}</p>
-                <p className="mt-4 text-sm font-semibold">{name}</p>
+      <section className="bg-slate-50/30 py-24 text-slate-900 relative overflow-hidden">
+        {/* Background glow effects */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-64 bg-purple-100/30 rounded-full blur-3xl -z-10 pointer-events-none" />
+        
+        <div className="mx-auto max-w-6xl px-4 relative z-10">
+          <div className="flex flex-col items-center text-center">
+            <span className="inline-flex items-center gap-2 rounded-full bg-purple-100 px-3.5 py-1 text-xs font-bold text-purple-700 mb-4 tracking-wider">
+              <Star className="h-3.5 w-3.5 fill-purple-700" />
+              TESTIMONIALS
+            </span>
+            <h2 className="text-4xl font-extrabold tracking-tight text-[#0F172A] sm:text-5xl">What Our Learners Say</h2>
+            <p className="mt-5 max-w-2xl text-base text-slate-500 font-medium">
+              Real stories from students who are learning smarter with AI.
+            </p>
+            <div className="mt-8 flex items-center justify-center w-full mx-auto">
+               <div className="h-1 w-8 bg-[#8B5CF6] rounded-full" />
+            </div>
+          </div>
+          
+          <div className="mt-16 flex flex-col md:flex-row justify-center gap-6 md:gap-8 items-center relative px-2 sm:px-12 lg:px-16">
+            {/* Left arrow */}
+            <div onClick={handlePrevTestimonial} className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 h-12 w-12 bg-white rounded-full shadow-[0_8px_30px_rgba(0,0,0,0.1)] items-center justify-center cursor-pointer text-[#8B5CF6] hover:bg-purple-50 transition border border-slate-100 z-20">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            </div>
+            {/* Right arrow */}
+            <div onClick={handleNextTestimonial} className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 h-12 w-12 bg-white rounded-full shadow-[0_8px_30px_rgba(0,0,0,0.1)] items-center justify-center cursor-pointer text-[#8B5CF6] hover:bg-purple-50 transition border border-slate-100 z-20">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+            </div>
+
+            {visibleTestimonials.map(({ name, quote, role, subject, avatar, isCenter, key }) => (
+              <div 
+                key={key} 
+                className={cn(
+                  "relative rounded-[1.5rem] bg-white p-7 sm:p-8 flex flex-col h-full w-full max-w-[360px] flex-1 transition-all duration-300",
+                  isCenter ? "shadow-[0_16px_50px_rgba(124,58,237,0.1)] ring-1 ring-purple-100 scale-100 md:scale-105 z-10 md:-translate-y-2" : "shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-slate-100 hover:shadow-md"
+                )}
+              >
+                {isCenter && (
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 h-8 w-8 bg-purple-600 rounded-lg flex items-center justify-center shadow-lg shadow-purple-600/30 rotate-12">
+                    <Star className="h-4 w-4 text-white fill-white -rotate-12" />
+                  </div>
+                )}
+                <div className="flex items-start justify-between">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="currentColor" className="text-[#8B5CF6]">
+                    <path d="M9.983 3v7.391C9.983 16.095 6.252 19.961 2 21L.823 18.574c3.242-.781 4.962-3.238 5.485-5.965H2V3h7.983zm12.017 0v7.391c0 5.704-3.731 9.57-7.983 10.609l-1.177-2.426c3.242-.781 4.962-3.238 5.485-5.965H14V3h8z"/>
+                  </svg>
+                  <div className="flex items-center gap-1">
+                    {[1,2,3,4,5].map(i => <Star key={i} className="h-4 w-4 text-amber-400 fill-amber-400" />)}
+                  </div>
+                </div>
+                <p className="mt-5 text-[15px] leading-relaxed text-slate-700 font-medium flex-grow">{quote}</p>
+                <div className="mt-6 flex items-center gap-4">
+                  <div className="h-12 w-12 rounded-full overflow-hidden bg-purple-100 flex-shrink-0 border border-slate-100">
+                    <img src={avatar} alt={name} className="h-full w-full object-cover" />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-slate-900">{name}</h4>
+                    <p className="text-[11px] text-purple-600 font-semibold mb-1">{role}</p>
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-50 px-2 py-0.5 text-[10px] font-bold text-slate-500 border border-slate-100">
+                      <GraduationCap className="h-3 w-3 text-purple-500" />
+                      {subject}
+                    </span>
+                  </div>
+                </div>
               </div>
             ))}
           </div>
+
+          <div className="mt-9 flex justify-center gap-2.5">
+            {testimonialsData.map((_, idx) => (
+              <div
+                key={idx}
+                onClick={() => setActiveTestimonial(idx)}
+                className={cn("h-2.5 w-2.5 rounded-full cursor-pointer transition", idx === activeTestimonial ? "bg-[#8B5CF6]" : "bg-slate-200 hover:bg-purple-200")}
+              />
+            ))}
+          </div>
+
+
         </div>
       </section>
 
-      <section id="faq" className="scroll-section bg-gradient-to-b from-[#F3EEFF] to-[#EDE9FE] pb-20 pt-16">
-        <div className="mx-auto max-w-3xl px-4">
-        <h2 className="text-center text-3xl font-bold text-[#1E1B4B]">FAQ</h2>
-        <div className="mt-8 space-y-4">
-          {[
-            ["Is the AI Tutor a separate user role?", "No. Only Admin and Student are human roles. The AI Tutor assists students."],
-            ["Can students edit courses?", "No. Only administrators manage educational content."],
-            ["Do quiz scores come from real attempts?", "Yes. Admins cannot fabricate academic results."],
-          ].map(([q, a]) => (
-            <Card key={q} className="rounded-2xl border border-white/80 bg-white p-5 shadow-[0_10px_30px_rgba(124,58,237,0.08)]">
-              <h3 className="font-semibold text-[#1E1B4B]">{q}</h3>
-              <p className="mt-2 text-sm text-slate-500">{a}</p>
-            </Card>
-          ))}
-        </div>
-        </div>
-      </section>
+
     </div>
   );
 }
 
 export function AboutPage() {
+  const { t } = useI18n();
   return (
     <div className="mx-auto max-w-3xl px-4 py-16">
       <img src="/logo.png" alt="Interactive Ai learing tutor system" className="mb-6 h-20 w-20 rounded-2xl shadow-md" />
-      <h1 className="text-4xl font-bold">About Interactive Ai learing tutor system</h1>
-      <p className="mt-4 text-muted">
-        A modern education platform: structured courses, interactive quizzes, student progress analytics, and a personal AI
-        tutor — with a professional admin console for managing students and content.
-      </p>
+      <h1 className="text-4xl font-bold">{t("about.title")}</h1>
+      <p className="mt-4 text-muted">{t("about.body")}</p>
     </div>
   );
 }

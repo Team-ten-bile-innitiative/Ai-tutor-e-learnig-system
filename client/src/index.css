@@ -23,10 +23,23 @@
   --shadow-card: 0 8px 24px -12px rgb(15 23 42 / 0.18);
 }
 
+:root {
+  --public-header-h: 5rem;
+}
+
 html {
   scroll-behavior: smooth;
   overflow-x: hidden;
   scrollbar-gutter: stable;
+}
+
+.public-header {
+  position: fixed;
+  inset-inline: 0;
+  top: 0;
+  z-index: 50;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
 }
 
 html,
@@ -35,6 +48,26 @@ body,
   min-height: 100%;
   max-width: 100%;
   overflow-x: hidden;
+}
+
+.auth-card {
+  height: 480px;
+  border-radius: 20px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.auth-card input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
+.auth-fields input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]) {
+  border-radius: 8px;
+  border-width: 2px;
+  border-style: solid;
+  border-color: #7c3aed;
+}
+
+.auth-card-btn {
+  border-radius: 12px;
 }
 
 body {
@@ -289,9 +322,107 @@ input[type="radio"] {
   box-shadow: 0 14px 24px rgba(225, 29, 72, 0.38);
 }
 
+.group\/feat:hover .feat-icon-cyan,
+.group\/feat:focus-visible .feat-icon-cyan {
+  background-color: #0891b2;
+  box-shadow: 0 14px 24px rgba(8, 145, 178, 0.38);
+}
+
+.group\/feat:hover .feat-icon-pink,
+.group\/feat:focus-visible .feat-icon-pink {
+  background-color: #db2777;
+  box-shadow: 0 14px 24px rgba(219, 39, 119, 0.38);
+}
+
 .group\/feat:hover .feat-icon svg,
 .group\/feat:focus-visible .feat-icon svg {
   animation: icon-nudge 0.7s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+
+.guide-timeline {
+  --guide-line: 0;
+}
+
+.guide-timeline-rail {
+  position: absolute;
+  top: 1.375rem;
+  bottom: 1.375rem;
+  left: 1.375rem;
+  z-index: 0;
+  width: 3px;
+  transform: translateX(-50%);
+  overflow: hidden;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #ddd6fe 0%, #c4b5fd 50%, #ddd6fe 100%);
+  background-size: 100% 220%;
+  animation: guide-rail-flow 2.4s linear infinite;
+}
+
+@media (min-width: 640px) {
+  .guide-timeline-rail {
+    top: 1.5rem;
+    bottom: 1.5rem;
+    left: 1.5rem;
+  }
+}
+
+.guide-timeline-rail-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: calc(var(--guide-line) * 100%);
+  border-radius: inherit;
+  background: linear-gradient(180deg, #7c3aed 0%, #a78bfa 55%, #6d28d9 100%);
+  box-shadow: 0 0 12px rgba(124, 58, 237, 0.45);
+  transition: height 0.12s linear;
+}
+
+.guide-timeline-rail-fill::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 0%, rgba(255, 255, 255, 0.55) 50%, transparent 100%);
+  background-size: 100% 48%;
+  animation: guide-line-sheen 1.5s linear infinite;
+}
+
+@keyframes guide-rail-flow {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 0 220%;
+  }
+}
+
+@keyframes guide-line-sheen {
+  from {
+    background-position: 0 -50%;
+  }
+  to {
+    background-position: 0 150%;
+  }
+}
+
+.guide-num {
+  --num-color: #7c3aed;
+  transition:
+    background-color 0.28s ease,
+    color 0.28s ease,
+    box-shadow 0.28s ease,
+    transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.28s ease;
+}
+
+.guide-num:hover,
+.group\/feat:hover .guide-num,
+.group\/feat:focus-visible .guide-num {
+  transform: scale(1.08);
+  background-color: #fff;
+  color: var(--num-color);
+  border-color: var(--num-color);
+  box-shadow: 0 10px 22px color-mix(in srgb, var(--num-color) 35%, transparent);
 }
 
 .ai-prompt-icon {

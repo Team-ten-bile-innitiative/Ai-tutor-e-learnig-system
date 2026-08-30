@@ -4,16 +4,17 @@ import { toast } from "sonner";
 import {
   BrainCircuit,
   ChevronRight,
+  GraduationCap,
   Headphones,
   Headset,
+  LayoutDashboard,
   Lock,
   MailCheck,
+  MessageSquare,
   MessagesSquare,
-  PenLine,
   PhoneCall,
   Send,
   ShieldCheck,
-  Timer,
   UserRound,
 } from "lucide-react";
 import { api } from "@/lib/api";
@@ -59,33 +60,44 @@ export function ContactPage() {
     <div className="mx-auto max-w-7xl px-4 py-8">
       <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#F5F3FF] via-white to-[#EEF2FF] px-5 py-8 sm:px-8">
         <div className="pointer-events-none absolute -right-10 -top-16 h-56 w-56 rounded-full bg-[#DDD6FE]/50 blur-3xl" />
-        <div className="max-w-3xl">
-          <span className="inline-flex items-center gap-2 rounded-full bg-[#EDE9FE] px-3.5 py-1.5 text-sm font-bold text-[#6D28D9]">
-            <Headphones className="h-4 w-4" strokeWidth={2.4} />
-            We're Here to Help
-          </span>
-          <h1 className="mt-4 text-4xl font-extrabold tracking-tight text-[#0F172A] sm:text-5xl">
-            Contact <span className="text-[#7C3AED]">Us</span>
-          </h1>
-          <p className="mt-3 max-w-xl text-base leading-relaxed text-slate-500">
-            Questions about Interactive Ai learing tutor system? Reach the team anytime for courses, quizzes, or your AI tutor.
-          </p>
-          <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
-            {[
-              { Icon: Timer, t: "Quick Response", d: "Usually within 24 hours", wrap: "contact-icon contact-icon-orange bg-[#FFEDD5] text-[#EA580C]" },
-              { Icon: ShieldCheck, t: "Trusted & Secure", d: "Your data is safe with us", wrap: "contact-icon contact-icon-green bg-[#DCFCE7] text-[#16A34A]" },
-              { Icon: Headset, t: "Human Support", d: "Real people, real help", wrap: "contact-icon contact-icon-blue bg-[#DBEAFE] text-[#2563EB]" },
-            ].map(({ Icon, t, d, wrap }) => (
-              <div key={t} className="group/touch flex items-center gap-3 rounded-2xl bg-white px-3 py-3 shadow-[0_8px_22px_rgba(15,23,42,0.06)]">
-                <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${wrap}`}>
-                  <Icon className="h-5 w-5" strokeWidth={2.2} />
-                </span>
-                <div className="min-w-0">
-                  <p className="text-sm font-bold text-[#0F172A]">{t}</p>
-                  <p className="mt-0.5 text-xs text-slate-500">{d}</p>
+        <div className="pointer-events-none absolute bottom-0 left-1/3 h-40 w-40 rounded-full bg-[#C4B5FD]/25 blur-3xl" />
+        <div className="relative grid items-center gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-10">
+          <div>
+            <span className="inline-flex items-center gap-2 rounded-full bg-[#EDE9FE] px-3.5 py-1.5 text-sm font-bold text-[#6D28D9]">
+              <Headphones className="h-4 w-4" strokeWidth={2.4} />
+              We're Here to Help
+            </span>
+            <h1 className="mt-4 text-4xl font-extrabold tracking-tight text-[#0F172A] sm:text-5xl">
+              Contact <span className="bg-gradient-to-r from-[#7C3AED] to-[#2563EB] bg-clip-text text-transparent">Us</span>
+            </h1>
+            <p className="mt-3 max-w-xl text-base leading-relaxed text-slate-500">
+              Questions about Interactive Ai learing tutor system? Reach the team anytime for courses, quizzes, or your AI tutor.
+            </p>
+            <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
+              {[
+                { Icon: LayoutDashboard, t: "Admin Control",   d: "Full platform & content management",  wrap: "bg-[#FFEDD5] text-[#EA580C]" },
+                { Icon: GraduationCap,   t: "Student Learning", d: "Courses, quizzes & progress tracking", wrap: "bg-[#DCFCE7] text-[#16A34A]" },
+                { Icon: BrainCircuit,    t: "AI Tutor",         d: "24/7 intelligent personalized help",  wrap: "bg-[#EDE9FE] text-[#7C3AED]" },
+              ].map(({ Icon, t, d, wrap }) => (
+                <div key={t} className="group/card flex flex-col items-center justify-center gap-2.5 rounded-2xl bg-white px-4 py-4 text-center shadow-[0_8px_22px_rgba(15,23,42,0.06)] min-h-[100px]">
+                  <span className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl transition-all duration-300 group-hover/card:scale-110 group-hover/card:rotate-6 group-hover/card:shadow-lg ${wrap}`}>
+                    <Icon className="h-5 w-5" strokeWidth={2.2} />
+                  </span>
+                  <div>
+                    <p className="text-sm font-bold text-[#0F172A] whitespace-nowrap">{t}</p>
+                    <p className="mt-0.5 text-xs text-slate-500 leading-snug">{d}</p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
+          </div>
+          <div className="relative flex justify-center lg:justify-end">
+            <img
+              src="/contact-hero.png"
+              alt="Student chatting with an AI tutor while sending a message"
+              className="relative z-10 h-auto w-full max-w-[32rem] object-contain object-center mix-blend-multiply"
+              style={{ background: "transparent" }}
+            />
           </div>
         </div>
       </section>
@@ -123,7 +135,7 @@ export function ContactPage() {
                 })}
               </div>
               <div className="group/touch mt-5 flex w-full flex-col gap-3 rounded-2xl bg-[#F3EEFF] p-3 sm:flex-row sm:items-center">
-                <span className="contact-icon contact-icon-purple grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-white text-[#7C3AED] shadow-sm">
+                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-[#7C3AED] to-[#2563EB] text-white shadow-md">
                   <BrainCircuit className="h-5 w-5" strokeWidth={2.2} />
                 </span>
                 <p className="min-w-0 flex-1 text-sm font-semibold text-[#4C1D95]">Need immediate help? Chat with our AI Tutor now</p>
@@ -160,7 +172,7 @@ export function ContactPage() {
               <label className="grid w-full gap-1.5 text-sm font-semibold text-slate-700">
                 Message
                   <span className="relative">
-                    <FieldIcon icon={PenLine} tone="green" align="top" />
+                    <FieldIcon icon={MessageSquare} tone="teal" align="top" />
                     <textarea
                       required
                       minLength={10}

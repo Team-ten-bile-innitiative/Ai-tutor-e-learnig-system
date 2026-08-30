@@ -4,12 +4,13 @@ import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const fieldClass =
-  "h-11 w-full rounded-[5px] border border-line bg-white px-3 text-sm font-bold text-[#0F172A] outline-none transition placeholder:font-semibold placeholder:text-slate-400 hover:border-[#7C3AED] focus:border-[#7C3AED] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60";
+  "h-11 w-full rounded-xl border border-line bg-white px-3 text-sm font-bold text-[#0F172A] outline-none transition placeholder:font-semibold placeholder:text-slate-400 hover:border-slate-400 focus:border-[#7C3AED] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60";
 
 export const textareaClass =
-  "min-h-28 w-full rounded-[5px] border border-line bg-white px-3 py-2 text-sm font-bold text-[#0F172A] outline-none transition placeholder:font-semibold placeholder:text-slate-400 hover:border-[#7C3AED] focus:border-[#7C3AED] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60";
+  "min-h-28 w-full rounded-xl border border-line bg-white px-3 py-2 text-sm font-bold text-[#0F172A] outline-none transition placeholder:font-semibold placeholder:text-slate-400 hover:border-slate-400 focus:border-[#7C3AED] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60";
 
 export const fieldWithIconPad = "pl-12";
+export const authFieldPad = "pl-10";
 
 export const fieldIconTone = {
   purple: "bg-[#EDE9FE] text-[#7C3AED] ring-1 ring-[#7C3AED]/15",
@@ -25,27 +26,42 @@ export const fieldIconTone = {
 
 export type FieldIconTone = keyof typeof fieldIconTone;
 
+export const fieldIconPlain = {
+  purple: "text-[#7C3AED]",
+  blue: "text-[#2563EB]",
+  indigo: "text-[#4F46E5]",
+  teal: "text-[#0D9488]",
+  green: "text-[#16A34A]",
+  amber: "text-[#D97706]",
+  orange: "text-[#EA580C]",
+  rose: "text-[#E11D48]",
+  slate: "text-[#64748B]",
+} as const;
+
 export function FieldIcon({
   icon: Icon,
   tone = "purple",
   align = "center",
+  variant = "chip",
   className,
 }: {
   icon: LucideIcon;
   tone?: FieldIconTone;
   align?: "center" | "top";
+  variant?: "chip" | "plain";
   className?: string;
 }) {
+  // Both chip and plain variants now render as a simple colored icon — no background box
   return (
     <span
       className={cn(
-        "pointer-events-none absolute left-2.5 grid h-8 w-8 place-items-center rounded-[10px] shadow-sm transition-colors",
+        "pointer-events-none absolute left-3 grid place-items-center",
         align === "top" ? "top-3" : "top-1/2 -translate-y-1/2",
-        fieldIconTone[tone],
+        fieldIconPlain[tone],
         className,
       )}
     >
-      <Icon className="h-[18px] w-[18px]" strokeWidth={2.25} />
+      <Icon className="h-5 w-5" strokeWidth={2.2} />
     </span>
   );
 }

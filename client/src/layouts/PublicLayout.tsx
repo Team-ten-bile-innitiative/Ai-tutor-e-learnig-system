@@ -1,5 +1,5 @@
-import { Link, Outlet, useLocation } from "react-router-dom";
-import { useState, useEffect, type FormEvent } from "react";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { useState, useEffect, type FormEvent, type MouseEvent } from "react";
 import { toast } from "sonner";
 import {
   AtSign,
@@ -17,26 +17,29 @@ import {
   LayoutDashboard,
   Layers,
   Mail,
+  Menu,
   Send,
   Share2,
   TrendingUp,
   User,
   UserPlus,
   Video,
+  X,
   type LucideIcon,
 } from "lucide-react";
 import { BrandLogo } from "@/components/shared";
 import { LanguageSelect } from "@/components/LanguageSelect";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
+import { useI18n, type I18nKey } from "@/context/I18nContext";
 
-const nav = [
-  { to: "/", label: "HOME", id: "top", Icon: Home },
-  { to: "/courses", label: "COURSES", Icon: BookOpen },
-  { to: "/courses", label: "STUDY GUIDE", Icon: BookMarked },
-  { to: "/#faq", label: "FAQ", id: "faq", Icon: CircleHelp },
-  { to: "/about", label: "ABOUT", Icon: Info },
-  { to: "/contact", label: "CONTACT", Icon: Mail },
+const nav: { to: string; labelKey: I18nKey; Icon: LucideIcon }[] = [
+  { to: "/", labelKey: "nav.home", Icon: Home },
+  { to: "/courses", labelKey: "nav.courses", Icon: BookOpen },
+  { to: "/study-guide", labelKey: "nav.studyGuide", Icon: BookMarked },
+  { to: "/faq", labelKey: "nav.faq", Icon: CircleHelp },
+  { to: "/about", labelKey: "nav.about", Icon: Info },
+  { to: "/contact", labelKey: "nav.contact", Icon: Mail },
 ];
 
 export function scrollToId(id: string) {
@@ -65,9 +68,9 @@ const courseLinks = [
 
 const supportLinks = [
   { to: "/contact", label: "Help Center" },
-  { to: "/about", label: "FAQs" },
+  { to: "/faq", label: "FAQs" },
   { to: "/contact", label: "Live Chat" },
-  { to: "/courses", label: "Study Guides" },
+  { to: "/study-guide", label: "Study Guides" },
   { to: "/about", label: "Privacy Policy" },
   { to: "/about", label: "Terms of Service" },
 ];
@@ -120,7 +123,7 @@ function SiteFooter() {
   }
 
   return (
-    <footer className="border-t-4 border-[#7C3AED] bg-gradient-to-b from-[#DDD6FE] via-white to-[#EDE9FE] text-[#1E293B] shadow-[0_-18px_50px_rgba(124,58,237,0.16)]">
+    <footer className="bg-gradient-to-b from-[#DDD6FE] via-white to-[#EDE9FE] text-[#1E293B] shadow-[0_-18px_50px_rgba(124,58,237,0.16)]">
       <div className="mx-auto w-full max-w-7xl px-6 py-14">
         <div className="flex flex-col gap-10 lg:flex-row lg:items-center lg:justify-between lg:gap-16">
           <div className="max-w-xl">
@@ -209,7 +212,7 @@ function SiteFooter() {
         </div>
       </div>
 
-      <div className="border-t-2 border-[#7C3AED]/30 bg-[#DDD6FE]">
+      <div className="bg-[#DDD6FE]">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-2 px-6 py-5 text-sm font-medium text-[#334155] sm:flex-row">
           <p>&copy; {new Date().getFullYear()} Interactive Ai learing tutor system. All rights reserved.</p>
           <p className="inline-flex items-center gap-1.5">
@@ -220,30 +223,37 @@ function SiteFooter() {
     </footer>
   );
 }
-function isNavActive(item: (typeof nav)[number], pathname: string, hash: string) {
-  if (item.label === "HOME") return pathname === "/" && hash !== "#faq";
-  if (item.label === "FAQ") return pathname === "/" && hash === "#faq";
-  if (item.label === "COURSES") return pathname.startsWith("/courses");
-  if (item.label === "STUDY GUIDE") return false;
-  if (item.label === "ABOUT") return pathname.startsWith("/about");
-  if (item.label === "CONTACT") return pathname.startsWith("/contact");
-  return false;
+function isNavActive(to: string, pathname: string) {
+  if (to === "/") return pathname === "/";
+  return pathname === to || pathname.startsWith(`${to}/`);
 }
 
 export function PublicLayout() {
   const { user } = useAuth();
+  const { t } = useI18n();
   const location = useLocation();
+  const navigate = useNavigate();
+  const [menuOpen, setMenuOpen] = useState(false);
   const dest = user?.role === "admin" ? "/admin/dashboard" : "/student/dashboard";
-  const onHome = location.pathname === "/";
   const authPages = ["/register", "/login", "/forgot-password", "/reset-password"];
-  const lockPage = location.pathname === "/register";
-  const hideFooter = location.pathname === "/contact" || authPages.includes(location.pathname);
+  const lockPage = authPages.includes(location.pathname);
+  const hideFooter =
+    location.pathname === "/contact" ||
+    location.pathname.startsWith("/courses") ||
+    location.pathname.startsWith("/study-guide") ||
+    authPages.includes(location.pathname);
 
   useEffect(() => {
-    if (location.pathname !== "/" || !location.hash) return;
-    const id = location.hash.replace("#", "");
-    const t = window.setTimeout(() => scrollToId(id), 50);
-    return () => window.clearTimeout(t);
+    setMenuOpen(false);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (location.hash) {
+      const id = location.hash.replace("#", "");
+      const tmr = window.setTimeout(() => scrollToId(id), 50);
+      return () => window.clearTimeout(tmr);
+    }
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
   }, [location.pathname, location.hash]);
 
   useEffect(() => {
@@ -260,40 +270,61 @@ export function PublicLayout() {
     };
   }, [lockPage]);
 
+  function goHome(e: MouseEvent) {
+    if (location.pathname === "/") {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      if (location.hash) navigate("/", { replace: true });
+    }
+  }
+
+  const authButtons = user ? (
+    <Link to={dest} className="shrink-0" onClick={() => setMenuOpen(false)}>
+      <Button className="group h-10 rounded-lg bg-gradient-to-r from-[#8B5CF6] to-[#6366F1] px-4 text-sm font-semibold text-white shadow-[0_8px_18px_rgba(139,92,246,0.35)] transition hover:-translate-y-0.5 hover:brightness-110">
+        <LayoutDashboard className="h-4 w-4 transition group-hover:scale-110" />
+        {t("nav.dashboard")}
+      </Button>
+    </Link>
+  ) : (
+    <>
+      <Link to="/register" className="shrink-0" onClick={() => setMenuOpen(false)}>
+        <Button className="group h-10 w-auto rounded-lg bg-gradient-to-r from-[#8B5CF6] to-[#2563EB] px-4 text-sm font-semibold text-white shadow-[0_8px_18px_rgba(99,102,241,0.38)] transition hover:-translate-y-0.5 hover:brightness-110 active:translate-y-0">
+          <UserPlus className="h-4 w-4 transition duration-200 group-hover:scale-110" strokeWidth={2.25} />
+          {t("nav.register")}
+        </Button>
+      </Link>
+      <Link to="/login" className="shrink-0" onClick={() => setMenuOpen(false)}>
+        <Button className="group h-10 w-auto rounded-lg bg-gradient-to-r from-[#8B5CF6] to-[#2563EB] px-4 text-sm font-semibold text-white shadow-[0_8px_18px_rgba(99,102,241,0.38)] transition hover:-translate-y-0.5 hover:brightness-110 active:translate-y-0">
+          <User className="h-4 w-4 transition duration-200 group-hover:scale-110" strokeWidth={2.25} />
+          {t("nav.signIn")}
+        </Button>
+      </Link>
+    </>
+  );
+
   return (
     <div
       className={
         lockPage
-          ? "flex h-dvh flex-col overflow-hidden bg-[#F3EEFF]"
-          : "min-h-screen overflow-x-hidden bg-[#F3EEFF] pt-20"
+          ? "h-dvh overflow-hidden bg-[#F3EEFF] pt-[var(--public-header-h)]"
+          : "min-h-dvh overflow-x-hidden bg-[#F3EEFF] pt-[var(--public-header-h)]"
       }
     >
-      <header
-        className={
-          lockPage
-            ? "z-50 w-full shrink-0 bg-white shadow-[0_8px_24px_rgba(15,23,42,0.06)]"
-            : "fixed inset-x-0 top-0 z-50 w-full bg-white shadow-[0_8px_24px_rgba(15,23,42,0.06)]"
-        }
-      >
+      <header className="public-header">
         <div className="mx-auto flex h-20 max-w-7xl items-center gap-4 px-4">
           <BrandLogo />
           <span className="hidden h-9 w-px shrink-0 bg-slate-200 lg:block" aria-hidden />
           <div className="hidden min-w-0 flex-1 items-center gap-4 lg:flex">
             {nav.map((item) => {
-              const active = isNavActive(item, location.pathname, location.hash);
+              const active = isNavActive(item.to, location.pathname);
               return (
                 <Link
-                  key={item.label}
+                  key={item.to}
                   to={item.to}
                   className={`group/nav inline-flex shrink-0 items-center gap-2.5 whitespace-nowrap text-sm font-bold uppercase tracking-[0.08em] no-underline transition ${
                     active ? "text-[#3E5BFF]" : "text-black hover:text-[#3E5BFF]"
                   }`}
-                  onClick={(e) => {
-                    if (item.id === "top" && onHome) {
-                      e.preventDefault();
-                      window.scrollTo({ top: 0, behavior: "smooth" });
-                    }
-                  }}
+                  onClick={item.to === "/" ? goHome : undefined}
                 >
                   <item.Icon
                     className={`h-5 w-5 shrink-0 transition group-hover/nav:-translate-y-0.5 ${
@@ -301,38 +332,51 @@ export function PublicLayout() {
                     }`}
                     strokeWidth={2.4}
                   />
-                  {item.label}
+                  {t(item.labelKey)}
                 </Link>
               );
             })}
             <LanguageSelect />
-            {user ? (
-              <Link to={dest} className="shrink-0">
-                <Button className="group h-10 rounded-lg bg-gradient-to-r from-[#8B5CF6] to-[#6366F1] px-4 text-sm font-semibold text-white shadow-[0_8px_18px_rgba(139,92,246,0.35)] transition hover:-translate-y-0.5 hover:brightness-110">
-                  <LayoutDashboard className="h-4 w-4 transition group-hover:scale-110" />
-                  Dashboard
-                </Button>
-              </Link>
-            ) : (
-              <>
-                <Link to="/register" className="shrink-0">
-                  <Button className="group h-10 w-auto rounded-lg bg-gradient-to-r from-[#8B5CF6] to-[#2563EB] px-4 text-sm font-semibold text-white shadow-[0_8px_18px_rgba(99,102,241,0.38)] transition hover:-translate-y-0.5 hover:brightness-110 active:translate-y-0">
-                    <UserPlus className="h-4 w-4 transition duration-200 group-hover:scale-110" strokeWidth={2.25} />
-                    Register
-                  </Button>
-                </Link>
-                <Link to="/login" className="shrink-0">
-                  <Button className="group h-10 w-auto rounded-lg bg-gradient-to-r from-[#8B5CF6] to-[#2563EB] px-4 text-sm font-semibold text-white shadow-[0_8px_18px_rgba(99,102,241,0.38)] transition hover:-translate-y-0.5 hover:brightness-110 active:translate-y-0">
-                    <User className="h-4 w-4 transition duration-200 group-hover:scale-110" strokeWidth={2.25} />
-                    Sign In
-                  </Button>
-                </Link>
-              </>
-            )}
+            {authButtons}
+          </div>
+          <div className="ml-auto flex items-center gap-2 lg:hidden">
+            <LanguageSelect />
+            <button
+              type="button"
+              className="grid h-10 w-10 place-items-center rounded-lg border border-slate-200 text-[#7C3AED]"
+              aria-label={menuOpen ? t("nav.close") : t("nav.menu")}
+              aria-expanded={menuOpen}
+              onClick={() => setMenuOpen((v) => !v)}
+            >
+              {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </button>
           </div>
         </div>
+        {menuOpen ? (
+          <div className="border-t border-slate-100 bg-white px-4 py-4 lg:hidden">
+            <nav className="flex flex-col gap-1">
+              {nav.map((item) => {
+                const active = isNavActive(item.to, location.pathname);
+                return (
+                  <Link
+                    key={item.to}
+                    to={item.to}
+                    className={`inline-flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-bold uppercase tracking-[0.06em] ${
+                      active ? "bg-[#F5F3FF] text-[#3E5BFF]" : "text-[#0F172A]"
+                    }`}
+                    onClick={item.to === "/" ? goHome : undefined}
+                  >
+                    <item.Icon className="h-5 w-5 text-[#7C3AED]" strokeWidth={2.4} />
+                    {t(item.labelKey)}
+                  </Link>
+                );
+              })}
+            </nav>
+            <div className="mt-4 flex flex-wrap gap-2">{authButtons}</div>
+          </div>
+        ) : null}
       </header>
-      <div className={lockPage ? "min-h-0 flex-1 overflow-hidden" : undefined}>
+      <div className={lockPage ? "flex h-full min-h-0 flex-col overflow-hidden" : undefined}>
         <Outlet />
         {hideFooter ? null : <SiteFooter />}
       </div>
