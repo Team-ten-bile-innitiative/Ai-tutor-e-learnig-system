@@ -64,7 +64,7 @@ export function HeroTypewriter({ className }: HeroTypewriterProps) {
 
   return (
     <div className={cn("hero-typewriter-lock mt-6", className)}>
-      <h1 className="text-[2.5rem] font-extrabold leading-[1.2] tracking-tight text-[#111827] sm:text-5xl lg:text-[3.5rem]">
+      <h1 className="text-[2.5rem] font-extrabold leading-[1.2] tracking-tight text-[#111827] sm:text-5xl lg:text-[3.5rem] mx-4">
         <span className="sr-only">Learn Smarter With Your Personal Study Partner</span>
         <span aria-hidden="true">
           Learn Smarter With
