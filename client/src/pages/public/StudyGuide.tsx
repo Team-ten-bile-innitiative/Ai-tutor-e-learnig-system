@@ -124,8 +124,6 @@ export function StudyGuidePage() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:py-10">
       <section className="relative overflow-hidden rounded-[1.75rem] bg-gradient-to-br from-[#F8FAFC] via-white to-[#F5F3FF] px-5 py-8 sm:px-10 sm:py-10">
-        <div className="pointer-events-none absolute -right-16 top-0 h-72 w-72 rounded-full bg-[#DDD6FE]/55 blur-3xl" />
-        <div className="pointer-events-none absolute bottom-0 left-1/3 h-40 w-40 rounded-full bg-[#C4B5FD]/30 blur-3xl" />
         <div className="relative grid items-center gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-10">
           <div>
             <h1 className="text-4xl font-extrabold tracking-tight text-[#0F172A] sm:text-5xl">Study Guide</h1>
@@ -185,7 +183,7 @@ export function StudyGuidePage() {
                     <p className="mt-1.5 text-sm font-semibold leading-relaxed text-[#64748B]">{d}</p>
                   </div>
                   <div className="relative hidden h-full min-h-[7.5rem] w-28 shrink-0 items-center justify-center sm:flex">
-                    <span className={cn("absolute inset-3 rounded-2xl blur-xl", glow)} />
+                    <span className={cn("absolute inset-3 rounded-2xl opacity-20", glow)} />
                     <span className={cn("relative grid h-14 w-14 place-items-center rounded-[14px] shadow-sm", wrap)}>
                       <Icon className="h-7 w-7" strokeWidth={2.15} />
                     </span>

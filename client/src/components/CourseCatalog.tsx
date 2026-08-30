@@ -39,15 +39,23 @@ const SELECT_FOCUS =
 
 const CANONICAL_CATEGORIES: { id: string; label: string; Icon: LucideIcon | null; iconClass: string }[] = [
   { id: "", label: "All", Icon: null, iconClass: "" },
-  { id: "Programming", label: "Programming", Icon: Braces, iconClass: "text-[#7C3AED]" },
-  { id: "Data Science", label: "Data Science", Icon: Database, iconClass: "text-[#0284C7]" },
-  { id: "Design", label: "Design", Icon: Palette, iconClass: "text-[#DB2777]" },
-  { id: "Business", label: "Business", Icon: Briefcase, iconClass: "text-[#2563EB]" },
-  { id: "AI & ML", label: "AI & ML", Icon: Brain, iconClass: "text-[#16A34A]" },
-  { id: "Math", label: "Math", Icon: Calculator, iconClass: "text-[#EA580C]" },
-  { id: "Language", label: "Language", Icon: BookOpen, iconClass: "text-[#0D9488]" },
+  { id: "Mathematics", label: "Mathematics", Icon: Calculator, iconClass: "text-[#EA580C]" },
+  { id: "English", label: "English", Icon: BookOpen, iconClass: "text-[#0D9488]" },
   { id: "Science", label: "Science", Icon: FlaskConical, iconClass: "text-[#0891B2]" },
-  { id: "Personal Development", label: "Personal", Icon: UserRound, iconClass: "text-[#C026D3]" },
+  { id: "Biology", label: "Biology", Icon: FlaskConical, iconClass: "text-[#16A34A]" },
+  { id: "Chemistry", label: "Chemistry", Icon: FlaskConical, iconClass: "text-[#DB2777]" },
+  { id: "Physics", label: "Physics", Icon: Brain, iconClass: "text-[#2563EB]" },
+  { id: "Geography", label: "Geography", Icon: Layers, iconClass: "text-[#16A34A]" },
+  { id: "History", label: "History", Icon: GraduationCap, iconClass: "text-[#C026D3]" },
+  { id: "Computer Science", label: "Computer Science", Icon: Braces, iconClass: "text-[#7C3AED]" },
+  { id: "Business Studies", label: "Business Studies", Icon: Briefcase, iconClass: "text-[#2563EB]" },
+  { id: "Economics", label: "Economics", Icon: Database, iconClass: "text-[#0284C7]" },
+  { id: "Accounting", label: "Accounting", Icon: Calculator, iconClass: "text-[#0284C7]" },
+  { id: "Civics", label: "Civics", Icon: Users, iconClass: "text-[#2563EB]" },
+  { id: "Agriculture", label: "Agriculture", Icon: FlaskConical, iconClass: "text-[#16A34A]" },
+  { id: "Languages", label: "Languages", Icon: BookOpen, iconClass: "text-[#0D9488]" },
+  { id: "Art & Design", label: "Art & Design", Icon: Palette, iconClass: "text-[#DB2777]" },
+  { id: "Physical Education", label: "Physical Education", Icon: UserRound, iconClass: "text-[#C026D3]" },
 ];
 
 const VISIBLE_CHIP_COUNT = 9;
@@ -145,7 +153,6 @@ function CoverEmblem({ kind }: { kind: CoverKind }) {
   if (kind === "ai") {
     return (
       <div className="relative grid h-[5rem] w-[5rem] place-items-center">
-        <span className="absolute inset-0 rounded-full bg-[#818CF8]/35 blur-xl" />
         <svg viewBox="0 0 88 88" className="relative h-full w-full drop-shadow-[0_16px_24px_rgba(99,102,241,0.45)]">
           <path d="M44 14c14 0 26 14 26 30 0 18-12 30-26 30S18 62 18 44C18 28 30 14 44 14z" fill="url(#aiGrad)" />
           <defs>
@@ -190,7 +197,7 @@ function CoverEmblem({ kind }: { kind: CoverKind }) {
         <span className="h-10 w-5 rounded-b-full rounded-t-md bg-gradient-to-b from-[#6EE7B7] to-[#059669] ring-2 ring-white/20" />
         <span className="h-14 w-6 rounded-b-full rounded-t-md bg-gradient-to-b from-[#A7F3D0] to-[#10B981] ring-2 ring-white/25" />
         <span className="h-8 w-5 rounded-b-full rounded-t-md bg-gradient-to-b from-[#34D399] to-[#047857] ring-2 ring-white/20" />
-        <span className="absolute -top-1 left-1/2 h-4 w-4 -translate-x-1/2 rounded-full bg-[#FDE68A] blur-[1px]" />
+        <span className="absolute -top-1 left-1/2 h-4 w-4 -translate-x-1/2 rounded-full bg-[#FDE68A]" />
       </div>
     );
   }
@@ -219,27 +226,27 @@ function CoverEmblem({ kind }: { kind: CoverKind }) {
   }
   if (kind === "business") {
     return (
-      <div className="grid h-[4.75rem] w-[4.75rem] place-items-center rounded-2xl bg-white/10 shadow-[0_18px_28px_rgba(0,0,0,0.35)] ring-1 ring-white/25 backdrop-blur-sm">
+      <div className="grid h-[4.75rem] w-[4.75rem] place-items-center rounded-2xl bg-white/10 shadow-[0_18px_28px_rgba(0,0,0,0.35)] ring-1 ring-white/25">
         <Briefcase className="h-12 w-12 text-sky-200" strokeWidth={1.75} />
       </div>
     );
   }
   if (kind === "language") {
     return (
-      <div className="grid h-[4.75rem] w-[4.75rem] place-items-center rounded-2xl bg-white/10 shadow-[0_18px_28px_rgba(0,0,0,0.35)] ring-1 ring-white/25 backdrop-blur-sm">
+      <div className="grid h-[4.75rem] w-[4.75rem] place-items-center rounded-2xl bg-white/10 shadow-[0_18px_28px_rgba(0,0,0,0.35)] ring-1 ring-white/25">
         <BookOpen className="h-12 w-12 text-teal-200" strokeWidth={1.75} />
       </div>
     );
   }
   if (kind === "growth") {
     return (
-      <div className="grid h-[4.75rem] w-[4.75rem] place-items-center rounded-2xl bg-white/10 shadow-[0_18px_28px_rgba(0,0,0,0.35)] ring-1 ring-white/25 backdrop-blur-sm">
+      <div className="grid h-[4.75rem] w-[4.75rem] place-items-center rounded-2xl bg-white/10 shadow-[0_18px_28px_rgba(0,0,0,0.35)] ring-1 ring-white/25">
         <Users className="h-12 w-12 text-fuchsia-200" strokeWidth={1.75} />
       </div>
     );
   }
   return (
-    <div className="grid h-[4.75rem] w-[4.75rem] place-items-center rounded-2xl bg-white/10 shadow-[0_18px_28px_rgba(0,0,0,0.35)] ring-1 ring-white/25 backdrop-blur-sm">
+    <div className="grid h-[4.75rem] w-[4.75rem] place-items-center rounded-2xl bg-white/10 shadow-[0_18px_28px_rgba(0,0,0,0.35)] ring-1 ring-white/25">
       <GraduationCap className="h-12 w-12 text-white" strokeWidth={1.75} />
     </div>
   );
@@ -252,8 +259,6 @@ function CourseCover({ course }: { course: Course }) {
   const kind = coverKind(course);
   return (
     <div className={cn("relative h-full w-full overflow-hidden bg-gradient-to-br", COVER_SCENE[kind])}>
-      <div className="pointer-events-none absolute -right-8 -top-10 h-36 w-36 rounded-full bg-white/10 blur-2xl" />
-      <div className="pointer-events-none absolute -bottom-10 -left-6 h-28 w-28 rounded-full bg-white/10 blur-2xl" />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_70%_20%,rgba(255,255,255,0.16),transparent_45%)]" />
       <div className="relative z-10 flex h-full items-center justify-center transition duration-500 group-hover:scale-105">
         <CoverEmblem kind={kind} />
@@ -522,7 +527,7 @@ export function CourseCatalog({ compact = false }: { compact?: boolean }) {
     },
     {
       n: platform.data?.categories ?? 0,
-      l: "Categories",
+      l: "Subjects",
       Icon: Layers,
       iconWrap: "bg-[#DCFCE7] text-[#16A34A]",
       onClick: () => setShowAllChips(true),
@@ -544,7 +549,6 @@ export function CourseCatalog({ compact = false }: { compact?: boolean }) {
   return (
     <div className={cn(compact ? "" : "mx-auto max-w-7xl px-4 py-8")}>
       <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#F5F3FF] via-white to-[#EEF2FF] px-5 py-8 sm:px-8">
-        <div className="pointer-events-none absolute -right-10 -top-16 h-56 w-56 rounded-full bg-[#DDD6FE]/50 blur-3xl" />
         <div className="grid items-center gap-6 lg:grid-cols-[1fr_min(42%,22rem)]">
           <div>
             <h1 className="text-4xl font-extrabold tracking-tight text-[#0F172A] sm:text-5xl">All Courses</h1>
@@ -605,7 +609,7 @@ export function CourseCatalog({ compact = false }: { compact?: boolean }) {
                 onChange={(e) => patchParams({ category: e.target.value })}
                 className={SELECT_FOCUS}
               >
-                <option value="">All Categories</option>
+                <option value="">All Subjects</option>
                 {CANONICAL_CATEGORIES.filter((c) => c.id).map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.label}

@@ -18,6 +18,7 @@ import { AdminStudentDetailPage } from "@/pages/admin/StudentDetail";
 import { AdminCoursesPage } from "@/pages/admin/Courses";
 import { AdminLessonsPage, AdminQuestionsPage, AdminQuizzesPage } from "@/pages/admin/Content";
 import { AdminAnalyticsPage, AdminSettingsPage } from "@/pages/admin/Analytics";
+import { AdminPdfImportPage } from "@/pages/admin/PdfImport";
 import { StudentDashboardPage } from "@/pages/student/Dashboard";
 import { StudentCourseDetailPage, StudentCoursesPage, StudentLessonsListPage, StudentQuizzesListPage } from "@/pages/student/Courses";
 import { StudentLessonPage, StudentQuizPage, StudentResultPage } from "@/pages/student/Learn";
@@ -71,6 +72,7 @@ export default function App() {
             <Route path="students" element={<AdminStudentsPage />} />
             <Route path="students/:id" element={<AdminStudentDetailPage />} />
             <Route path="courses" element={<AdminCoursesPage />} />
+            <Route path="import-pdf" element={<AdminPdfImportPage />} />
             <Route path="lessons" element={<AdminLessonsPage />} />
             <Route path="quizzes" element={<AdminQuizzesPage />} />
             <Route path="questions" element={<AdminQuestionsPage />} />

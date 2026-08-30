@@ -14,8 +14,24 @@ import { logActivity } from "../services/activity.service.js";
 export const coursesRouter = Router();
 
 const CATEGORY_ALIASES: Record<string, string[]> = {
+  Mathematics: ["Mathematics", "Math"],
+  English: ["English", "Language"],
+  Science: ["Science"],
+  Biology: ["Biology"],
+  Chemistry: ["Chemistry"],
+  Physics: ["Physics"],
+  Geography: ["Geography"],
+  History: ["History"],
+  "Computer Science": ["Computer Science", "Programming"],
+  "Business Studies": ["Business Studies", "Business"],
+  Economics: ["Economics"],
+  Accounting: ["Accounting"],
+  Civics: ["Civics"],
+  Agriculture: ["Agriculture"],
+  Languages: ["Languages", "Language"],
+  "Art & Design": ["Art & Design", "Design"],
+  "Physical Education": ["Physical Education"],
   Math: ["Math", "Mathematics"],
-  Science: ["Science", "Physics"],
   Programming: ["Programming", "Computer Science"],
   "AI & ML": ["AI & ML", "AI", "Machine Learning"],
 };
@@ -24,6 +40,7 @@ const courseSchema = z.object({
   title: z.string().min(2),
   description: z.string().min(10),
   category: z.string().min(2),
+  subjects: z.array(z.string().min(2)).min(1).optional(),
   level: z.enum(["beginner", "intermediate", "advanced"]),
   thumbnailUrl: z.string().optional(),
   duration: z.string().optional(),
@@ -40,7 +57,8 @@ coursesRouter.get(
     if (req.query.category) {
       const cat = String(req.query.category);
       const names = CATEGORY_ALIASES[cat] || [cat];
-      filter.category = names.length === 1 ? names[0] : { $in: names };
+      const subjectFilter = names.length === 1 ? names[0] : { $in: names };
+      filter.$or = [{ category: subjectFilter }, { subjects: subjectFilter }];
     }
     if (req.query.level) filter.level = req.query.level;
     if (req.query.status) filter.status = req.query.status;
@@ -50,13 +68,13 @@ coursesRouter.get(
     const publishedFilter = req.user?.role === "admin" && req.query.status ? { status: req.query.status } : req.user?.role === "admin" ? {} : { status: "published" };
     const popular = sortParam === "popular";
 
-    const [rawItems, categories, total] = await Promise.all([
+    const [rawItems, categoryRows, total] = await Promise.all([
       Course.find(filter)
         .populate("createdBy", "fullName avatarUrl")
         .sort(sortParam === "title" ? { title: 1 } : { createdAt: -1 })
         .skip(popular ? 0 : skip)
         .limit(popular ? 50 : limit),
-      Course.distinct("category", publishedFilter),
+      Course.find(publishedFilter).select("category subjects").lean(),
       Course.countDocuments(filter),
     ]);
 
@@ -85,6 +103,7 @@ coursesRouter.get(
       return {
         ...obj,
         id: c.id,
+        subjects: obj.subjects?.length ? obj.subjects : [obj.category],
         lessons: lMap[c.id] || 0,
         quizzes: qMap[c.id] || 0,
         enrollmentCount: eMap[c.id] || 0,
@@ -106,7 +125,11 @@ coursesRouter.get(
       success: true,
       data: items,
       pagination: { page, limit, total, pages: Math.ceil(total / limit) || 1 },
-      meta: { categories: (categories as string[]).filter(Boolean).sort((a, b) => a.localeCompare(b)) },
+      meta: {
+        categories: [...new Set(categoryRows.flatMap((course) => course.subjects?.length ? course.subjects : [course.category]))]
+          .filter(Boolean)
+          .sort((a, b) => a.localeCompare(b)),
+      },
     });
   })
 );
@@ -124,7 +147,17 @@ coursesRouter.get(
       Quiz.find(quizFilter).sort({ createdAt: 1 }),
       req.user ? Enrollment.findOne({ student: req.user.id, course: course.id }) : null,
     ]);
-    res.json({ success: true, data: { ...course.toObject(), id: course.id, lessons, quizzes, enrolled: Boolean(enrolled) } });
+    res.json({
+      success: true,
+      data: {
+        ...course.toObject(),
+        id: course.id,
+        subjects: course.subjects?.length ? course.subjects : [course.category],
+        lessons,
+        quizzes,
+        enrolled: Boolean(enrolled),
+      },
+    });
   })
 );
 
@@ -134,7 +167,8 @@ coursesRouter.post(
   requireRole("admin"),
   asyncHandler(async (req, res) => {
     const data = courseSchema.parse(req.body);
-    const course = await Course.create({ ...data, createdBy: req.user!.id });
+    const subjects = data.subjects?.length ? data.subjects : [data.category];
+    const course = await Course.create({ ...data, category: subjects[0], subjects, createdBy: req.user!.id });
     await logActivity(req.user!.id, "course.created", "course", course.id);
     res.status(201).json({ success: true, message: "Course created", data: course });
   })
@@ -146,7 +180,8 @@ coursesRouter.patch(
   requireRole("admin"),
   asyncHandler(async (req, res) => {
     const data = courseSchema.partial().parse(req.body);
-    const course = await Course.findByIdAndUpdate(req.params.id, data, { new: true });
+    const subjects = data.subjects?.length ? data.subjects : undefined;
+    const course = await Course.findByIdAndUpdate(req.params.id, { ...data, ...(subjects ? { category: subjects[0], subjects } : {}) }, { new: true });
     if (!course) throw notFound("Course not found");
     await logActivity(req.user!.id, "course.updated", "course", course.id);
     res.json({ success: true, message: "Course updated", data: course });

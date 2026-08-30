@@ -34,6 +34,7 @@ export interface Course {
   title: string;
   description: string;
   category: string;
+  subjects?: string[];
   level: LearningLevel;
   thumbnailUrl: string;
   duration: string;

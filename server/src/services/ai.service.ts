@@ -68,6 +68,39 @@ async function callOpenAI(messages: Array<{ role: string; content: string }>) {
   return data.choices?.[0]?.message?.content?.trim() || "Let us try that again — could you rephrase your question?";
 }
 
+async function callGemini(messages: Array<{ role: string; content: string }>) {
+  const systemInstruction = messages
+    .filter((message) => message.role === "system")
+    .map((message) => message.content)
+    .join("\n\n");
+  const contents = messages
+    .filter((message) => message.role !== "system")
+    .map((message) => ({
+      role: message.role === "assistant" ? "model" : "user",
+      parts: [{ text: message.content }],
+    }));
+
+  const res = await fetch(`${env.geminiBaseUrl}/models/${env.geminiModel}:generateContent`, {
+    method: "POST",
+    headers: {
+      "x-goog-api-key": env.geminiKey,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      system_instruction: { parts: [{ text: systemInstruction }] },
+      contents,
+      generationConfig: { temperature: 0.5 },
+    }),
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Gemini provider error: ${res.status} ${text}`);
+  }
+  const data = (await res.json()) as { candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }> };
+  const reply = data.candidates?.[0]?.content?.parts?.map((part) => part.text || "").join("").trim();
+  return reply || "The tutor could not create a response. Please try again.";
+}
+
 function fallbackTutor(userMessage: string, ctx: TutorContext) {
   const topic = ctx.lessonTitle || ctx.courseTitle || "this topic";
   const level = ctx.learningLevel || "beginner";
@@ -137,16 +170,26 @@ If you want, I can also:
 
 export async function generateTutorReply(userMessage: string, history: ChatTurn[], ctx: TutorContext) {
   const contextBlock = buildContextBlock(ctx);
+  const messages = [
+    { role: "system", content: SYSTEM_PROMPT },
+    { role: "system", content: `Learning context (no extra private data):\n${contextBlock}` },
+    ...history.slice(-12).map((m) => ({ role: m.role, content: m.content })),
+    { role: "user", content: userMessage },
+  ];
+
+  if (env.geminiKey) {
+    try {
+      return await callGemini(messages);
+    } catch (err) {
+      console.error("Gemini provider failed, trying the next available tutor provider", err);
+    }
+  }
+
   if (env.openaiKey) {
     try {
-      return await callOpenAI([
-        { role: "system", content: SYSTEM_PROMPT },
-        { role: "system", content: `Learning context (no extra private data):\n${contextBlock}` },
-        ...history.slice(-12).map((m) => ({ role: m.role, content: m.content })),
-        { role: "user", content: userMessage },
-      ]);
+      return await callOpenAI(messages);
     } catch (err) {
-      console.error("AI provider failed, using educational fallback", err);
+      console.error("OpenAI provider failed, using educational fallback", err);
     }
   }
   return fallbackTutor(userMessage, ctx);
@@ -169,6 +212,17 @@ Weak areas: ${input.weakAreas.join("; ") || "none highlighted"}
 Recommended lessons: ${input.recommendedLessons.join("; ") || "continue current course"}
 Return a short markdown summary with Strengths, Weak areas, and What to study next.`;
 
+  if (env.geminiKey) {
+    try {
+      return await callGemini([
+        { role: "system", content: SYSTEM_PROMPT },
+        { role: "user", content: prompt },
+      ]);
+    } catch (err) {
+      console.error("Gemini provider failed, trying the next available tutor provider", err);
+    }
+  }
+
   if (env.openaiKey) {
     try {
       return await callOpenAI([
@@ -176,7 +230,7 @@ Return a short markdown summary with Strengths, Weak areas, and What to study ne
         { role: "user", content: prompt },
       ]);
     } catch (err) {
-      console.error(err);
+      console.error("OpenAI provider failed, using educational fallback", err);
     }
   }
 

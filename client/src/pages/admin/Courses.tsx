@@ -8,6 +8,7 @@ import { Badge, Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Select, Textarea } from "@/components/ui/field";
 import { formatDate, idOf } from "@/lib/utils";
+import { SCHOOL_SUBJECTS } from "@/lib/subjects";
 
 export function AdminCoursesPage() {
   const qc = useQueryClient();
@@ -28,7 +29,8 @@ export function AdminCoursesPage() {
         .split("\n")
         .map((s) => s.trim())
         .filter(Boolean);
-      const payload = { ...body, learningObjectives: objectives };
+      const subjects = Array.isArray(body.subjects) ? body.subjects.filter((item): item is string => typeof item === "string" && Boolean(item)) : [];
+      const payload = { ...body, category: subjects[0] || body.category, subjects, learningObjectives: objectives };
       if (editing && (editing.id || editing._id)) return api.patch(`/courses/${idOf(editing as Course)}`, payload);
       return api.post("/courses", payload);
     },
@@ -86,7 +88,7 @@ export function AdminCoursesPage() {
               </div>
               <p className="mt-2 line-clamp-2 text-sm text-muted">{c.description}</p>
               <p className="mt-3 text-xs text-slate-500">
-                {c.category} · {c.level} · {typeof c.lessons === "number" ? c.lessons : c.lessons?.length || 0} lessons · {typeof c.quizzes === "number" ? c.quizzes : c.quizzes?.length || 0} quizzes
+                Subject: {c.category} · {c.level} · {typeof c.lessons === "number" ? c.lessons : c.lessons?.length || 0} lessons · {typeof c.quizzes === "number" ? c.quizzes : c.quizzes?.length || 0} quizzes
               </p>
               <p className="mt-1 text-xs text-slate-400">{formatDate(c.createdAt)}</p>
               <div className="mt-4 flex flex-wrap gap-2">
@@ -124,7 +126,7 @@ export function AdminCoursesPage() {
               onSubmit={(e) => {
                 e.preventDefault();
                 const fd = new FormData(e.currentTarget);
-                save.mutate(Object.fromEntries(fd));
+                save.mutate({ ...Object.fromEntries(fd), subjects: fd.getAll("subjects") });
               }}
             >
               <div>
@@ -137,8 +139,16 @@ export function AdminCoursesPage() {
               </div>
               <div className="grid gap-3 md:grid-cols-2">
                 <div>
-                  <Label>Category</Label>
-                  <Input name="category" defaultValue={editing.category || "Mathematics"} required />
+                  <Label>School subjects</Label>
+                  <Select name="subjects" multiple defaultValue={editing.subjects?.length ? editing.subjects : [editing.category || "Mathematics"]} required className="h-32 py-2">
+                    {editing.category && !SCHOOL_SUBJECTS.includes(editing.category as (typeof SCHOOL_SUBJECTS)[number]) && !editing.subjects?.includes(editing.category) ? (
+                      <option value={editing.category}>{editing.category}</option>
+                    ) : null}
+                    {SCHOOL_SUBJECTS.map((subject) => (
+                      <option key={subject} value={subject}>{subject}</option>
+                    ))}
+                  </Select>
+                  <p className="mt-1 text-xs text-muted">Hold Ctrl (Windows) or Cmd (Mac) to select more than one subject.</p>
                 </div>
                 <div>
                   <Label>Level</Label>
