@@ -131,6 +131,7 @@ export function StudentProfilePage() {
               <option value="en">English</option>
               <option value="ar">Arabic</option>
               <option value="fr">French</option>
+              <option value="fr">somali</option>
             </Select>
           </div>
           <Button type="submit">Save profile</Button>
