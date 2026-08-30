@@ -16,6 +16,7 @@ import { learningRouter } from "./routes/learning.routes.js";
 import { aiRouter } from "./routes/ai.routes.js";
 import { analyticsRouter, notificationsRouter, uploadRouter, settingsRouter } from "./routes/analytics.routes.js";
 import { contactRouter } from "./routes/contact.routes.js";
+import { importsRouter } from "./routes/imports.routes.js";
 import { optionalAuth } from "./middleware/optionalAuth.js";
 import { ApiError } from "./utils/ApiError.js";
 
@@ -49,6 +50,7 @@ app.use("/api/notifications", notificationsRouter);
 app.use("/api/uploads", uploadRouter);
 app.use("/api/contact", contactRouter);
 app.use("/api/settings", settingsRouter);
+app.use("/api/admin/imports", importsRouter);
 
 app.use((_req, _res, next) => next(new ApiError(404, "This endpoint does not exist")));
 app.use(errorHandler);

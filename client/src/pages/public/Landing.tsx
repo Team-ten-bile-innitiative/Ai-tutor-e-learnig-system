@@ -125,9 +125,6 @@ export function LandingPage() {
   return (
     <div>
       <section className="relative flex min-h-[calc(100dvh-5rem)] flex-col overflow-hidden bg-[#F3EEFF]">
-        <div className="pointer-events-none absolute -left-20 -top-16 h-80 w-80 rounded-full bg-[#C4B5FD]/40 blur-3xl" />
-        <div className="pointer-events-none absolute bottom-10 left-1/3 h-40 w-40 rounded-full bg-[#A78BFA]/30 blur-3xl" />
-        <div className="pointer-events-none absolute right-0 top-10 h-96 w-96 rounded-full bg-[#DDD6FE]/60 blur-3xl" />
         <div className="relative flex min-h-0 flex-1 items-center overflow-hidden">
           <div className="mx-auto grid w-full max-w-6xl items-center gap-8 px-4 py-8 lg:grid-cols-2 lg:gap-12 lg:py-10">
             <div className="flex h-full w-full flex-col justify-center lg:-mr-[100px]">
@@ -184,7 +181,7 @@ export function LandingPage() {
           ].map(({ n, l, s, Icon, num, icon }, i) => (
             <div
               key={l}
-              className={`group/stat flex min-h-[7.5rem] w-full items-center gap-4 rounded-2xl bg-white/70 px-5 py-5 backdrop-blur-sm transition lg:rounded-none lg:bg-transparent lg:px-6 lg:py-2 ${i > 0 ? "lg:border-l lg:border-[#16A34A]/50" : ""}`}
+              className={`group/stat flex min-h-[7.5rem] w-full items-center gap-4 rounded-2xl bg-white/70 px-5 py-5 transition lg:rounded-none lg:bg-transparent lg:px-6 lg:py-2 ${i > 0 ? "lg:border-l lg:border-[#16A34A]/50" : ""}`}
             >
               <div className={`grid h-14 w-14 shrink-0 place-items-center rounded-full text-white ${icon}`}>
                 <Icon className="h-6 w-6" strokeWidth={2} />
@@ -338,8 +335,6 @@ export function LandingPage() {
 
       <section id="ai-tutor" className="scroll-section mx-auto max-w-6xl px-4 py-16">
         <div className="relative overflow-hidden rounded-3xl border border-[#DDD6FE]/70 bg-gradient-to-br from-[#F5F3FF] via-white to-[#EEF2FF] p-6 shadow-[0_16px_40px_rgba(124,58,237,0.1)] sm:p-10 min-h-[500px]">
-          <div className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-[#DDD6FE]/45 blur-3xl" />
-          <div className="pointer-events-none absolute -bottom-10 left-1/4 h-40 w-40 rounded-full bg-[#BFDBFE]/30 blur-3xl" />
           <div className="relative grid items-stretch gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:gap-12">
             <div className="flex flex-col justify-center">
               <span className="inline-flex items-center gap-2 text-sm font-bold text-[#6D28D9]">
@@ -393,7 +388,7 @@ export function LandingPage() {
                 <div
                   key={t}
                   className={cn(
-                    "group/ai-prompt flex h-full min-h-[160px] items-center gap-4 rounded-2xl border border-white/90 bg-white/85 p-6 shadow-[0_8px_22px_rgba(15,23,42,0.06)] backdrop-blur-sm transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_14px_28px_rgba(15,23,42,0.08)]",
+                    "group/ai-prompt flex h-full min-h-[160px] items-center gap-4 rounded-2xl border border-white/90 bg-white/85 p-6 shadow-[0_8px_22px_rgba(15,23,42,0.06)] transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_14px_28px_rgba(15,23,42,0.08)]",
                     card,
                   )}
                 >
@@ -451,7 +446,6 @@ export function LandingPage() {
 
       <section className="bg-slate-50/30 py-24 text-slate-900 relative overflow-hidden">
         {/* Background glow effects */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-64 bg-purple-100/30 rounded-full blur-3xl -z-10 pointer-events-none" />
         
         <div className="mx-auto max-w-6xl px-4 relative z-10">
           <div className="flex flex-col items-center text-center">

@@ -6,6 +6,7 @@ export interface CourseDoc extends mongoose.Document {
   title: string;
   description: string;
   category: string;
+  subjects: string[];
   level: "beginner" | "intermediate" | "advanced";
   thumbnailUrl: string;
   duration: string;
@@ -22,6 +23,7 @@ const courseSchema = new Schema<CourseDoc>(
     title: { type: String, required: true, trim: true },
     description: { type: String, required: true },
     category: { type: String, required: true, index: true },
+    subjects: [{ type: String, trim: true, index: true }],
     level: { type: String, enum: ["beginner", "intermediate", "advanced"], default: "beginner" },
     thumbnailUrl: { type: String, default: "" },
     duration: { type: String, default: "4 weeks" },

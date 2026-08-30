@@ -1,0 +1,20 @@
+/** School subjects offered when an administrator classifies a course. */
+export const SCHOOL_SUBJECTS = [
+  "Mathematics",
+  "English",
+  "Science",
+  "Biology",
+  "Chemistry",
+  "Physics",
+  "Geography",
+  "History",
+  "Computer Science",
+  "Business Studies",
+  "Economics",
+  "Accounting",
+  "Civics",
+  "Agriculture",
+  "Languages",
+  "Art & Design",
+  "Physical Education",
+] as const;

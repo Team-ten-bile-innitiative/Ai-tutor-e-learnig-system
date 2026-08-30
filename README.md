@@ -11,7 +11,7 @@ Admin manages students and content. Students learn, take quizzes, track progress
 | Client | React 19, TypeScript, Vite, Tailwind CSS, React Router, TanStack Query, Zod, Recharts |
 | API | Express, JWT cookies + Bearer tokens, Zod validation, Multer uploads |
 | Database | MongoDB + Mongoose with indexes |
-| AI | Server-side tutor service (`OPENAI_API_KEY` optional; educational fallback if unset) |
+| AI | Server-side tutor service (Gemini or OpenAI; educational fallback if neither is set) |
 
 ## Quick start
 
@@ -46,9 +46,11 @@ MONGODB_URI=mongodb://127.0.0.1:27017/ai_learning_tutor
 JWT_SECRET=change-this
 OPENAI_API_KEY=
 OPENAI_MODEL=gpt-4o-mini
+GEMINI_API_KEY=
+GEMINI_MODEL=gemini-3.6-flash
 ```
 
-If `OPENAI_API_KEY` is empty, the tutor still answers using a pedagogical fallback and **conversations are still stored**.
+`GEMINI_API_KEY` is preferred when both provider keys are present. If neither key is set, the tutor still answers using a pedagogical fallback and **conversations are still stored**.
 
 MongoDB Atlas: set `MONGODB_URI` to your `mongodb+srv://...` connection string.
 

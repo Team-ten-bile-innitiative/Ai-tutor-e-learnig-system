@@ -474,7 +474,7 @@ input[type="radio"] {
   width: 0.14em;
   height: 0.92em;
   border-radius: 2px;
-  background: linear-gradient(180deg, #7c3aed 0%, #6366f1 100%);
+  background: #7c3aed;
   box-shadow: 0 0 12px rgba(124, 58, 237, 0.45);
 }
 
