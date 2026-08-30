@@ -63,8 +63,8 @@ export function HeroTypewriter({ className }: HeroTypewriterProps) {
   const typing = !prefersReducedMotion && (phraseCount < PHRASES[phraseIndex].length || deleting);
 
   return (
-    <div className={cn("hero-typewriter-lock mt-6", className)}>
-      <h1 className="text-[2.5rem] font-extrabold leading-[1.2] tracking-tight text-[#111827] sm:text-5xl lg:text-[3.5rem] mx-4">
+    <div className={cn("hero-typewriter-lock mt-7", className)}>
+      <h1 className="mx-0 max-w-[12ch] text-[2.65rem] font-extrabold leading-[1.08] tracking-[-0.045em] text-slate-900 sm:max-w-none sm:text-5xl lg:text-[3.65rem]">
         <span className="sr-only">Learn Smarter With Your Personal Study Partner</span>
         <span aria-hidden="true">
           Learn Smarter With
@@ -72,9 +72,9 @@ export function HeroTypewriter({ className }: HeroTypewriterProps) {
           Your Personal
           <br />
           {/* Inline flex row — no absolute positioning so descenders (g,p,y) are never clipped */}
-          <span className="inline-flex items-baseline" style={{ minWidth: 0 }}>
+          <span className="mt-1 inline-flex items-baseline sm:mt-2" style={{ minWidth: 0 }}>
             <span
-              className="whitespace-nowrap font-extrabold"
+              className="whitespace-nowrap bg-gradient-to-r from-[#EC4899] via-[#A855F7] to-[#6366F1] bg-clip-text font-extrabold text-transparent drop-shadow-[0_5px_14px_rgba(168,85,247,0.18)]"
               style={{
                 background: "linear-gradient(90deg, #EC4899 0%, #A855F7 60%, #8B5CF6 100%)",
                 WebkitBackgroundClip: "text",
@@ -89,7 +89,7 @@ export function HeroTypewriter({ className }: HeroTypewriterProps) {
             {/* blinking cursor */}
             <span
               className={cn(
-                "typewriter-cursor ml-0.5 inline-block align-[-0.08em]",
+                "typewriter-cursor ml-1 inline-block align-[-0.04em]",
                 typing ? "typewriter-cursor-active" : "typewriter-cursor-idle",
               )}
               aria-hidden
