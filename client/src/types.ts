@@ -9,7 +9,7 @@ export interface User {
   email: string;
   avatarUrl: string;
   role: Role;
-  status: "active" | "inactive";
+  status: "active" | "inactive" | "pending";
   learningLevel: LearningLevel;
   preferredLanguage: string;
   emailVerified: boolean;
@@ -83,7 +83,7 @@ export interface Quiz {
 export interface Question {
   id?: string;
   _id?: string;
-  quiz: string | { _id: string; title: string };
+  quiz: string | { _id?: string; id?: string; title: string; course?: { title?: string; category?: string } };
   questionText: string;
   questionType: "multiple_choice" | "true_false" | "short_answer";
   options: { text: string; order: number }[];
@@ -92,6 +92,7 @@ export interface Question {
   difficulty: "easy" | "medium" | "hard";
   points: number;
   orderIndex: number;
+  createdAt?: string;
 }
 
 export interface NotificationItem {

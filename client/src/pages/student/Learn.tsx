@@ -191,7 +191,7 @@ export function StudentQuizPage() {
         <div className="mt-4 space-y-2">
           {q.questionType === "short_answer" ? (
             <input
-              className="h-11 w-full rounded-[5px] border border-line px-3 font-bold outline-none hover:border-[#7C3AED] focus:border-[#7C3AED]"
+              className="h-11 w-full rounded-[5px] border border-line px-3 font-bold outline-none hover:border-[#2563EB] focus:border-[#2563EB]"
               value={answers[qid] || ""}
               onChange={(e) => setAnswers((a) => ({ ...a, [qid]: e.target.value }))}
             />
@@ -253,7 +253,7 @@ export function StudentResultPage() {
               cx="50"
               cy="50"
               r="42"
-              stroke="#4f46e5"
+              stroke="#1D4ED8"
               strokeWidth="10"
               fill="none"
               strokeDasharray={264}

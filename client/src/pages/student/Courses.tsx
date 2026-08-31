@@ -26,6 +26,9 @@ export function StudentCourseDetailPage() {
     onSuccess: () => {
       toast.success("Enrolled");
       qc.invalidateQueries({ queryKey: ["course", id] });
+      qc.invalidateQueries({ queryKey: ["landing-courses"] });
+      qc.invalidateQueries({ queryKey: ["course-catalog"] });
+      qc.invalidateQueries({ queryKey: ["admin-courses"] });
       const first = data?.lessons?.[0];
       if (first) navigate(`/student/lessons/${idOf(first)}`);
     },

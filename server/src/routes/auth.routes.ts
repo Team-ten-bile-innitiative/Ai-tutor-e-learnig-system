@@ -5,7 +5,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError, unauthorized } from "../utils/ApiError.js";
 import { hashToken, randomToken } from "../utils/helpers.js";
 import { protect, requireRole, setAuthCookie, signToken } from "../middleware/auth.js";
-import { logActivity, notify } from "../services/activity.service.js";
+import { logActivity, notifyAdmins } from "../services/activity.service.js";
 import { Router } from "express";
 
 const registerSchema = z
@@ -77,15 +77,24 @@ authRouter.post(
       preferredLanguage: data.preferredLanguage || "en",
       verifyToken,
       role: "student",
+      status: "pending",
     });
+    if (user.status !== "pending") {
+      user.status = "pending";
+      await user.save();
+    }
 
-    const admins = await User.find({ role: "admin" }).select("_id");
-    await Promise.all(
-      admins.map((a) =>
-        notify(a.id, "New student registered", `${user.fullName} just joined the platform.`, "registration", "/admin/students")
-      )
-    );
-    await logActivity(user.id, "student.registered", "user", user.id);
+    try {
+      await notifyAdmins(
+        "New student registered",
+        `${user.fullName} just joined the platform.`,
+        "registration",
+        "/admin/pending"
+      );
+      await logActivity(user.id, "student.registered", "user", user.id);
+    } catch (err) {
+      console.error("Register notification failed", err);
+    }
 
     const token = signToken({ id: user.id, role: user.role, email: user.email });
     setAuthCookie(res, token);
@@ -212,6 +221,7 @@ authRouter.patch(
     const data = z
       .object({
         fullName: z.string().min(2).optional(),
+        email: z.string().email().optional(),
         learningLevel: z.enum(["beginner", "intermediate", "advanced"]).optional(),
         preferredLanguage: z.string().optional(),
         avatarUrl: z.string().optional(),
@@ -220,8 +230,30 @@ authRouter.patch(
         theme: z.enum(["light", "dark", "system"]).optional(),
       })
       .parse(req.body);
-    const user = await User.findByIdAndUpdate(req.user!.id, data, { new: true });
-    res.json({ success: true, message: "Profile saved", data: publicUser(user!) });
+
+    const user = await User.findById(req.user!.id);
+    if (!user) throw unauthorized();
+
+    if (data.email) {
+      const nextEmail = data.email.trim().toLowerCase();
+      if (nextEmail !== user.email) {
+        const taken = await User.findOne({ email: nextEmail, _id: { $ne: user._id } });
+        if (taken) throw new ApiError(409, "That email is already in use");
+        user.email = nextEmail;
+      }
+    }
+    if (data.fullName) user.fullName = data.fullName;
+    if (data.learningLevel) user.learningLevel = data.learningLevel;
+    if (data.preferredLanguage) user.preferredLanguage = data.preferredLanguage;
+    if (data.avatarUrl !== undefined) user.avatarUrl = data.avatarUrl;
+    if (data.notificationEmail !== undefined) user.notificationEmail = data.notificationEmail;
+    if (data.notificationInApp !== undefined) user.notificationInApp = data.notificationInApp;
+    if (data.theme) user.theme = data.theme;
+    await user.save();
+
+    const token = signToken({ id: user.id, role: user.role, email: user.email });
+    setAuthCookie(res, token);
+    res.json({ success: true, message: "Profile saved", data: publicUser(user), token });
   })
 );
 

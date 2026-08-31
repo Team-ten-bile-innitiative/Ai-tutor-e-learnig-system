@@ -142,11 +142,31 @@ questionsRouter.get(
     if (req.query.quiz) filter.quiz = req.query.quiz;
     if (req.query.difficulty) filter.difficulty = req.query.difficulty;
     if (req.query.type) filter.questionType = req.query.type;
-    const [items, total] = await Promise.all([
-      Question.find(filter).populate("quiz", "title").sort({ orderIndex: 1, createdAt: -1 }).skip(skip).limit(limit),
+    const [items, total, grouped] = await Promise.all([
+      Question.find(filter)
+        .populate({ path: "quiz", select: "title course", populate: { path: "course", select: "title category" } })
+        .sort({ createdAt: -1, orderIndex: 1 })
+        .skip(skip)
+        .limit(limit),
       Question.countDocuments(filter),
+      Question.aggregate<{ _id: string; count: number; points: number }>([
+        { $group: { _id: "$questionType", count: { $sum: 1 }, points: { $sum: "$points" } } },
+      ]),
     ]);
-    res.json({ success: true, data: items, pagination: { page, limit, total, pages: Math.ceil(total / limit) } });
+    const byType = Object.fromEntries(grouped.map((g) => [g._id, g]));
+    const stats = {
+      total: grouped.reduce((s, g) => s + g.count, 0),
+      multipleChoice: byType.multiple_choice?.count || 0,
+      trueFalse: byType.true_false?.count || 0,
+      shortAnswer: byType.short_answer?.count || 0,
+      totalPoints: grouped.reduce((s, g) => s + (g.points || 0), 0),
+    };
+    res.json({
+      success: true,
+      data: items.map((item) => ({ ...item.toObject(), id: item.id })),
+      stats,
+      pagination: { page, limit, total, pages: Math.ceil(total / limit) || 1 },
+    });
   })
 );
 
@@ -157,6 +177,15 @@ questionsRouter.post(
     const question = await Question.create(data);
     await logActivity(req.user!.id, "question.created", "question", question.id);
     res.status(201).json({ success: true, message: "Question created", data: question });
+  })
+);
+
+questionsRouter.post(
+  "/bulk-delete",
+  asyncHandler(async (req, res) => {
+    const { ids } = z.object({ ids: z.array(z.string()).min(1) }).parse(req.body);
+    const result = await Question.deleteMany({ _id: { $in: ids } });
+    res.json({ success: true, message: `${result.deletedCount} question(s) deleted` });
   })
 );
 

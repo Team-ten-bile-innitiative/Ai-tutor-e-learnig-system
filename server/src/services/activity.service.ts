@@ -1,5 +1,6 @@
 import { ActivityLog } from "../models/Engagement.js";
 import { Notification } from "../models/Engagement.js";
+import { User } from "../models/User.js";
 import type { AuthUser } from "../middleware/auth.js";
 
 export async function logActivity(
@@ -20,6 +21,16 @@ export async function notify(
   link?: string
 ) {
   return Notification.create({ user: userId, title, message, type, link });
+}
+
+export async function notifyAdmins(
+  title: string,
+  message: string,
+  type: "quiz" | "course" | "system" | "ai" | "reminder" | "registration" = "system",
+  link?: string
+) {
+  const admins = await User.find({ role: "admin" }).select("_id");
+  await Promise.all(admins.map((a) => notify(a.id, title, message, type, link)));
 }
 
 export function actor(user: AuthUser) {

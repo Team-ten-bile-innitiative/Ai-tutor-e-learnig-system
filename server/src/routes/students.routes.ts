@@ -10,7 +10,7 @@ import { protect, requireRole } from "../middleware/auth.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError, notFound } from "../utils/ApiError.js";
 import { paginate, searchFilter } from "../utils/helpers.js";
-import { logActivity, notify } from "../services/activity.service.js";
+import { logActivity, notify, notifyAdmins } from "../services/activity.service.js";
 import { randomToken } from "../utils/helpers.js";
 import { env } from "../config/env.js";
 
@@ -23,7 +23,7 @@ const studentSchema = z.object({
   password: z.string().min(8).optional(),
   learningLevel: z.enum(["beginner", "intermediate", "advanced"]).optional(),
   preferredLanguage: z.string().optional(),
-  status: z.enum(["active", "inactive"]).optional(),
+  status: z.enum(["active", "inactive", "pending"]).optional(),
   avatarUrl: z.string().optional(),
 });
 
@@ -32,7 +32,10 @@ studentAdminRouter.get(
   asyncHandler(async (req, res) => {
     const { page, limit, skip } = paginate(req.query as { page?: string; limit?: string });
     const filter: Record<string, unknown> = { role: "student", ...searchFilter(req.query.q as string, ["fullName", "email"]) };
-    if (req.query.status) filter.status = req.query.status;
+    const rawStatus = req.query.status;
+    const status = String(Array.isArray(rawStatus) ? rawStatus[0] : rawStatus || "").trim();
+    if (status === "pending" || status === "active" || status === "inactive") filter.status = status;
+    else filter.status = { $in: ["active", "inactive"] };
     if (req.query.level) filter.learningLevel = req.query.level;
     const sort = req.query.sort === "oldest" ? { createdAt: 1 as const } : { createdAt: -1 as const };
 
@@ -42,7 +45,7 @@ studentAdminRouter.get(
     ]);
 
     const ids = items.map((s) => s._id);
-    const [enrolls, attempts, progresses] = await Promise.all([
+    const [enrolls, attempts, progresses, lessonProg] = await Promise.all([
       Enrollment.aggregate([{ $match: { student: { $in: ids } } }, { $group: { _id: "$student", count: { $sum: 1 } } }]),
       QuizAttempt.aggregate([
         { $match: { student: { $in: ids }, status: "submitted" } },
@@ -52,11 +55,18 @@ studentAdminRouter.get(
         { $match: { student: { $in: ids } } },
         { $group: { _id: "$student", avg: { $avg: "$progressPercentage" } } },
       ]),
+      LessonProgress.aggregate([
+        { $match: { student: { $in: ids } } },
+        { $group: { _id: "$student", total: { $sum: 1 }, done: { $sum: { $cond: ["$completed", 1, 0] } } } },
+      ]),
     ]);
 
     const enrollMap = Object.fromEntries(enrolls.map((e) => [String(e._id), e.count]));
     const avgMap = Object.fromEntries(attempts.map((e) => [String(e._id), Math.round(e.avg)]));
     const progMap = Object.fromEntries(progresses.map((e) => [String(e._id), Math.round(e.avg)]));
+    const lessonMap = Object.fromEntries(
+      lessonProg.map((e) => [String(e._id), e.total ? Math.round((e.done / e.total) * 100) : 0])
+    );
 
     res.json({
       success: true,
@@ -65,7 +75,7 @@ studentAdminRouter.get(
         id: s.id,
         courses: enrollMap[s.id] || 0,
         averageScore: avgMap[s.id] ?? null,
-        progress: progMap[s.id] ?? 0,
+        progress: progMap[s.id] ?? lessonMap[s.id] ?? 0,
       })),
       pagination: { page, limit, total, pages: Math.ceil(total / limit) },
     });
@@ -77,9 +87,10 @@ studentAdminRouter.post(
   asyncHandler(async (req, res) => {
     const data = studentSchema.parse(req.body);
     const password = data.password || "Student@123456";
-    const user = await User.create({ ...data, password, role: "student" });
+    const user = await User.create({ ...data, password, role: "student", status: data.status || "active" });
     await logActivity(req.user!.id, "student.created", "user", user.id, { email: user.email });
     await notify(user.id, "Welcome to AI Tutor", "An administrator created your learning account.", "system");
+    await notifyAdmins("New student registered", `${user.fullName} was added by an administrator.`, "registration", "/admin/students");
     res.status(201).json({ success: true, message: "Student created", data: user });
   })
 );
@@ -155,6 +166,24 @@ studentAdminRouter.post(
     if (!student) throw notFound("Student not found");
     await logActivity(req.user!.id, "student.deactivated", "user", student.id);
     res.json({ success: true, message: "Student deactivated", data: student });
+  })
+);
+
+studentAdminRouter.delete(
+  "/:id",
+  asyncHandler(async (req, res) => {
+    const student = await User.findOne({ _id: req.params.id, role: "student" });
+    if (!student) throw notFound("Student not found");
+    const sid = student.id;
+    await Promise.all([
+      Enrollment.deleteMany({ student: sid }),
+      CourseProgress.deleteMany({ student: sid }),
+      LessonProgress.deleteMany({ student: sid }),
+      QuizAttempt.deleteMany({ student: sid }),
+    ]);
+    await User.deleteOne({ _id: student._id });
+    await logActivity(req.user!.id, "student.deleted", "user", sid, { email: student.email });
+    res.json({ success: true, message: "Student deleted" });
   })
 );
 

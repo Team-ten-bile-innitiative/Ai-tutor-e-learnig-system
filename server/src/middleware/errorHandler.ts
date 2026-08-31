@@ -5,9 +5,11 @@ import { ApiError } from "../utils/ApiError.js";
 
 export function errorHandler(err: unknown, _req: Request, res: Response, _next: NextFunction) {
   if (err instanceof ZodError) {
+    const first = err.issues[0];
+    const field = first?.path?.filter(Boolean).join(" ") || "form";
     return res.status(400).json({
       success: false,
-      message: "Please check the highlighted fields",
+      message: first ? `Please complete ${field}` : "Please complete the required fields",
       details: err.flatten(),
     });
   }

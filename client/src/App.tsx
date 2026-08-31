@@ -14,9 +14,12 @@ import { FaqPage } from "@/pages/public/Faq";
 import { ForgotPasswordPage, LoginPage, RegisterPage, ResetPasswordPage } from "@/pages/auth/AuthPages";
 import { AdminDashboardPage } from "@/pages/admin/Dashboard";
 import { AdminStudentsPage } from "@/pages/admin/Students";
+import { AdminPendingPage } from "@/pages/admin/Pending";
 import { AdminStudentDetailPage } from "@/pages/admin/StudentDetail";
 import { AdminCoursesPage } from "@/pages/admin/Courses";
-import { AdminLessonsPage, AdminQuestionsPage, AdminQuizzesPage } from "@/pages/admin/Content";
+import { AdminCategoriesPage } from "@/pages/admin/Categories";
+import { AdminLessonsPage, AdminQuizzesPage } from "@/pages/admin/Content";
+import { AdminQuestionsPage } from "@/pages/admin/Questions";
 import { AdminAnalyticsPage, AdminSettingsPage } from "@/pages/admin/Analytics";
 import { StudentDashboardPage } from "@/pages/student/Dashboard";
 import { StudentCourseDetailPage, StudentCoursesPage, StudentLessonsListPage, StudentQuizzesListPage } from "@/pages/student/Courses";
@@ -69,8 +72,10 @@ export default function App() {
             <Route index element={<Navigate to="dashboard" replace />} />
             <Route path="dashboard" element={<AdminDashboardPage />} />
             <Route path="students" element={<AdminStudentsPage />} />
+            <Route path="pending" element={<AdminPendingPage />} />
             <Route path="students/:id" element={<AdminStudentDetailPage />} />
             <Route path="courses" element={<AdminCoursesPage />} />
+            <Route path="categories" element={<AdminCategoriesPage />} />
             <Route path="lessons" element={<AdminLessonsPage />} />
             <Route path="quizzes" element={<AdminQuizzesPage />} />
             <Route path="questions" element={<AdminQuestionsPage />} />

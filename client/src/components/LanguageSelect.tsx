@@ -40,14 +40,14 @@ export function LanguageSelect() {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-lg border-2 border-[#7C3AED] bg-white px-2.5 text-sm font-semibold text-[#1E293B]"
+        className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-lg border border-[#2563EB] bg-white px-3 text-sm font-semibold text-[#1D4ED8] transition hover:bg-[#EFF6FF]"
         aria-expanded={open}
         aria-haspopup="listbox"
         aria-label={t("lang.label")}
       >
         <FlagBox code={lang} />
         {lang}
-        <ChevronDown className={`h-4 w-4 shrink-0 text-[#A78BFA] transition ${open ? "rotate-180" : ""}`} />
+        <ChevronDown className={`h-4 w-4 shrink-0 text-[#1D4ED8] transition ${open ? "rotate-180" : ""}`} />
       </button>
       {open ? (
         <div role="listbox" aria-label={t("lang.label")} className="absolute right-0 z-50 mt-2 w-52 overflow-hidden rounded-xl border border-slate-200 bg-white py-1 shadow-lg">
@@ -57,7 +57,7 @@ export function LanguageSelect() {
               type="button"
               role="option"
               aria-selected={lang === l.code}
-              className="flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-sm font-semibold text-[#334155] hover:bg-[#F5F3FF]"
+              className="flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-sm font-semibold text-[#334155] hover:bg-[#EFF6FF]"
               onClick={() => {
                 setLang(l.code);
                 setOpen(false);
@@ -67,7 +67,7 @@ export function LanguageSelect() {
               <span className="flex-1">
                 {t(l.nameKey)} ({l.code})
               </span>
-              {lang === l.code ? <span className="font-bold text-[#7C3AED]">✓</span> : null}
+              {lang === l.code ? <span className="font-bold text-[#2563EB]">✓</span> : null}
             </button>
           ))}
         </div>

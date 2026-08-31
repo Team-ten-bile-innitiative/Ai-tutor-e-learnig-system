@@ -80,9 +80,9 @@ const STEPS = [
     t: "Review and adjust",
     d: "Look at mistakes, update your method, and decide what to study next. Progress comes from honest review.",
     Icon: RefreshCcw,
-    wrap: "feat-icon feat-icon-blue bg-[#DBEAFE] text-[#2563EB]",
-    glow: "bg-[#2563EB]/15",
-    num: "#2563EB",
+    wrap: "feat-icon feat-icon-orange bg-[#FFEDD5] text-[#EA580C]",
+    glow: "bg-[#EA580C]/15",
+    num: "#EA580C",
   },
 ];
 
@@ -123,9 +123,9 @@ export function StudyGuidePage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:py-10">
-      <section className="relative overflow-hidden rounded-[1.75rem] bg-gradient-to-br from-[#F8FAFC] via-white to-[#F5F3FF] px-5 py-8 sm:px-10 sm:py-10">
-        <div className="pointer-events-none absolute -right-16 top-0 h-72 w-72 rounded-full bg-[#DDD6FE]/55 blur-3xl" />
-        <div className="pointer-events-none absolute bottom-0 left-1/3 h-40 w-40 rounded-full bg-[#C4B5FD]/30 blur-3xl" />
+      <section className="relative overflow-hidden rounded-[1.75rem] bg-gradient-to-br from-[#F8FAFC] via-white to-[#EFF6FF] px-5 py-8 sm:px-10 sm:py-10">
+        <div className="pointer-events-none absolute -right-16 top-0 h-72 w-72 rounded-full bg-[#BFDBFE]/55 blur-3xl" />
+        <div className="pointer-events-none absolute bottom-0 left-1/3 h-40 w-40 rounded-full bg-[#93C5FD]/30 blur-3xl" />
         <div className="relative grid items-center gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-10">
           <div>
             <h1 className="text-4xl font-extrabold tracking-tight text-[#0F172A] sm:text-5xl">Study Guide</h1>
@@ -133,8 +133,8 @@ export function StudyGuidePage() {
               A practical playbook for focused learning: plan your week, protect your attention, and use quizzes plus AI Tutor support to improve with every session.
             </p>
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
-              <div className="group/feat flex items-center gap-3 rounded-2xl border border-slate-100 bg-white p-4 shadow-[0_8px_22px_rgba(15,23,42,0.05)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_14px_32px_rgba(15,23,42,0.1)]">
-                <span className="feat-icon feat-icon-purple grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#EDE9FE] text-[#7C3AED]">
+              <div className="group/feat flex items-center gap-3 rounded-2xl border border-[#CCFBF1] bg-white p-4 shadow-[0_8px_22px_rgba(15,23,42,0.05)] transition duration-300 hover:-translate-y-1 hover:border-[#5EEAD4]">
+                <span className="feat-icon feat-icon-teal grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#CCFBF1] text-[#0D9488]">
                   <BookOpen className="h-5 w-5" strokeWidth={2.2} />
                 </span>
                 <div>
@@ -142,8 +142,8 @@ export function StudyGuidePage() {
                   <p className="mt-0.5 text-xs font-semibold text-slate-500">Evidence-based routines that save time.</p>
                 </div>
               </div>
-              <div className="group/feat flex items-center gap-3 rounded-2xl border border-slate-100 bg-white p-4 shadow-[0_8px_22px_rgba(15,23,42,0.05)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_14px_32px_rgba(15,23,42,0.1)]">
-                <span className="feat-icon feat-icon-blue grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#DBEAFE] text-[#2563EB]">
+              <div className="group/feat flex items-center gap-3 rounded-2xl border border-[#FDE68A] bg-white p-4 shadow-[0_8px_22px_rgba(15,23,42,0.05)] transition duration-300 hover:-translate-y-1 hover:border-[#FCD34D]">
+                <span className="feat-icon feat-icon-amber grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#FEF3C7] text-[#D97706]">
                   <Target className="h-5 w-5" strokeWidth={2.2} />
                 </span>
                 <div>
@@ -173,14 +173,14 @@ export function StudyGuidePage() {
             {STEPS.map(({ n, label, t, d, Icon, wrap, glow, num }) => (
               <li key={n} className="group/feat relative flex items-center gap-3 sm:gap-4">
                 <span
-                  className="guide-num relative z-10 grid h-11 w-11 shrink-0 place-items-center rounded-full border-2 border-white bg-[#7C3AED] text-[11px] font-extrabold text-white shadow-[0_8px_18px_rgba(124,58,237,0.35)] sm:h-12 sm:w-12 sm:text-xs"
-                  style={{ ["--num-color" as string]: num }}
+                  className="guide-num relative z-10 grid h-11 w-11 shrink-0 place-items-center rounded-full border-2 border-white text-[11px] font-extrabold text-white sm:h-12 sm:w-12 sm:text-xs"
+                  style={{ backgroundColor: num, ["--num-color" as string]: num }}
                 >
                   {n}
                 </span>
                 <article className="flex min-w-0 flex-1 items-center overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-[0_8px_24px_rgba(15,23,42,0.05)] transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_14px_32px_rgba(15,23,42,0.08)]">
                   <div className="min-w-0 flex-1 p-4 sm:p-5">
-                    <p className="text-[11px] font-extrabold tracking-[0.14em] text-[#7C3AED]">{label}</p>
+                    <p className="text-[11px] font-extrabold tracking-[0.14em]" style={{ color: num }}>{label}</p>
                     <h3 className="mt-1 text-base font-extrabold text-[#0F172A] sm:text-lg">{t}</h3>
                     <p className="mt-1.5 text-sm font-semibold leading-relaxed text-[#64748B]">{d}</p>
                   </div>
@@ -195,17 +195,17 @@ export function StudyGuidePage() {
             ))}
           </ol>
 
-          <div className="mt-6 rounded-2xl border border-[#DDD6FE] bg-[#F3EEFF] p-4 shadow-[0_10px_28px_rgba(124,58,237,0.08)] sm:p-5">
+          <div className="mt-6 rounded-2xl border border-[#FDE68A] bg-[#FFFBEB] p-4 sm:p-5">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-              <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-white text-[#7C3AED] shadow-sm">
+              <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-[#FEF3C7] text-[#D97706]">
                 <Trophy className="h-6 w-6" strokeWidth={2.2} />
               </span>
-              <p className="min-w-0 flex-1 text-sm font-bold leading-relaxed text-[#4C1D95]">
+              <p className="min-w-0 flex-1 text-sm font-bold leading-relaxed text-[#92400E]">
                 <span className="text-base">Ready when you are.</span> Open a published course, complete one focused session, and ask the AI Tutor the moment a concept is unclear.
               </p>
               <Link
                 to="/courses"
-                className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-full border border-[#DDD6FE] bg-white px-5 text-sm font-bold text-[#4C1D95] shadow-[0_8px_16px_rgba(124,58,237,0.12)] transition hover:border-[#7C3AED] hover:text-[#7C3AED]"
+                className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-full border border-[#D97706] bg-white px-5 text-sm font-bold text-[#D97706] transition hover:bg-[#FEF3C7]"
               >
                 Start a course
                 <ArrowRight className="h-4 w-4" strokeWidth={2.4} />
@@ -215,13 +215,13 @@ export function StudyGuidePage() {
         </div>
 
         <aside className="flex flex-col gap-5">
-          <div className="group/feat rounded-2xl bg-[#F3EEFF] p-5 shadow-[0_8px_22px_rgba(124,58,237,0.08)]">
+          <div className="group/feat rounded-2xl border border-[#FBCFE8] bg-[#FDF2F8] p-5">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="text-sm font-extrabold text-[#6D28D9]">Today’s study tip</p>
-                <p className="mt-3 text-sm font-semibold italic leading-relaxed text-[#4C1D95]">“{TIPS[tipIndex]}”</p>
+                <p className="text-sm font-extrabold text-[#DB2777]">Today’s study tip</p>
+                <p className="mt-3 text-sm font-semibold italic leading-relaxed text-[#9D174D]">“{TIPS[tipIndex]}”</p>
               </div>
-              <span className="feat-icon feat-icon-purple grid h-11 w-11 shrink-0 place-items-center rounded-full bg-white text-[#7C3AED] shadow-sm">
+              <span className="feat-icon feat-icon-pink grid h-11 w-11 shrink-0 place-items-center rounded-full bg-white text-[#DB2777]">
                 <Lightbulb className="h-5 w-5" strokeWidth={2.2} />
               </span>
             </div>
@@ -235,8 +235,8 @@ export function StudyGuidePage() {
                   className={cn(
                     "grid place-items-center rounded-full text-[10px] font-extrabold transition duration-300",
                     i === tipIndex
-                      ? "h-6 min-w-[1.65rem] bg-[#6D28D9] px-2 text-white"
-                      : "h-6 w-6 bg-[#DDD6FE] text-[#6D28D9] hover:bg-[#7C3AED] hover:text-white",
+                      ? "h-6 min-w-[1.65rem] bg-[#DB2777] px-2 text-white"
+                      : "h-6 w-6 bg-[#FBCFE8] text-[#DB2777] hover:bg-[#DB2777] hover:text-white",
                   )}
                 >
                   {i + 1}
@@ -248,12 +248,16 @@ export function StudyGuidePage() {
           <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-[0_8px_22px_rgba(15,23,42,0.04)]">
             <h3 className="text-lg font-extrabold text-[#0F172A]">Habits that hold</h3>
             <ul className="mt-4 space-y-3">
-              {HABITS.map((habit) => (
+              {HABITS.map((habit, i) => {
+                const habitColors = ["#16A34A", "#0D9488", "#2563EB", "#D97706", "#DB2777"];
+                const c = habitColors[i % habitColors.length];
+                return (
                 <li key={habit} className="flex items-start gap-2.5 text-sm font-semibold text-[#334155]">
-                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[#16A34A]" strokeWidth={2.4} />
+                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" style={{ color: c }} strokeWidth={2.4} />
                   {habit}
                 </li>
-              ))}
+                );
+              })}
             </ul>
           </div>
         </aside>

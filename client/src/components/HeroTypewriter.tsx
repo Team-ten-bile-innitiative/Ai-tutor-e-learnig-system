@@ -74,12 +74,8 @@ export function HeroTypewriter({ className }: HeroTypewriterProps) {
           {/* Inline flex row — no absolute positioning so descenders (g,p,y) are never clipped */}
           <span className="inline-flex items-baseline" style={{ minWidth: 0 }}>
             <span
-              className="whitespace-nowrap font-extrabold"
+              className="whitespace-nowrap font-extrabold text-[#2563EB]"
               style={{
-                background: "linear-gradient(90deg, #EC4899 0%, #A855F7 60%, #8B5CF6 100%)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
                 paddingBottom: "0.08em",   /* ensures descenders are never cut */
                 lineHeight: "inherit",
               }}

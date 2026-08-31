@@ -3,7 +3,9 @@ import { CourseProgress, LessonProgress } from "../models/Progress.js";
 import { QuizAttempt } from "../models/QuizAttempt.js";
 import { Lesson } from "../models/Lesson.js";
 import { Enrollment } from "../models/Enrollment.js";
-import { notify } from "./activity.service.js";
+import { notify, notifyAdmins } from "./activity.service.js";
+import { User } from "../models/User.js";
+import { Course } from "../models/Course.js";
 
 function todayKey(date = new Date()) {
   return date.toISOString().slice(0, 10);
@@ -58,6 +60,16 @@ export async function recalculateCourseProgress(studentId: string, courseId: str
     );
     await unlockAchievement(studentId, `course_${courseId}`, "Course Completed", "You completed a full course.");
     await notify(studentId, "Course completed", "Great work — you finished a course.", "course", "/student/progress");
+    const [student, course] = await Promise.all([
+      User.findById(studentId).select("fullName"),
+      Course.findById(courseId).select("title"),
+    ]);
+    await notifyAdmins(
+      "Course completed",
+      `${student?.fullName || "A student"} completed ${course?.title || "a course"}.`,
+      "course",
+      `/admin/students/${studentId}`
+    );
   }
   return progress;
 }

@@ -26,7 +26,7 @@ const courseSchema = new Schema<CourseDoc>(
     thumbnailUrl: { type: String, default: "" },
     duration: { type: String, default: "4 weeks" },
     instructorName: { type: String, default: "", trim: true },
-    status: { type: String, enum: ["draft", "published", "archived"], default: "draft", index: true },
+    status: { type: String, enum: ["draft", "published", "archived"], default: "published", index: true },
     learningObjectives: [{ type: String }],
     createdBy: { type: Schema.Types.ObjectId, ref: "User", required: true },
   },
