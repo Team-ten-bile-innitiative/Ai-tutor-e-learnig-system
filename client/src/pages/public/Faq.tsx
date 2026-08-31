@@ -23,7 +23,7 @@ export function FaqPage() {
         {ITEMS.map((item, i) => {
           const expanded = open === i;
           return (
-            <div key={item.q} className="overflow-hidden rounded-2xl border border-[#DDD6FE] bg-white shadow-[0_8px_22px_rgba(15,23,42,0.04)]">
+            <div key={item.q} className="overflow-hidden rounded-2xl border border-[#BFDBFE] bg-white shadow-[0_8px_22px_rgba(15,23,42,0.04)]">
               <button
                 type="button"
                 className="flex w-full items-center justify-between gap-3 px-5 py-4 text-left"
@@ -31,7 +31,7 @@ export function FaqPage() {
                 onClick={() => setOpen(expanded ? -1 : i)}
               >
                 <span className="text-base font-extrabold text-[#0F172A]">{t(item.q)}</span>
-                <ChevronDown className={cn("h-5 w-5 shrink-0 text-[#7C3AED] transition", expanded ? "rotate-180" : "")} />
+                <ChevronDown className={cn("h-5 w-5 shrink-0 text-[#2563EB] transition", expanded ? "rotate-180" : "")} />
               </button>
               {expanded ? <p className="px-5 pb-5 text-sm font-semibold leading-relaxed text-[#475569]">{t(item.a)}</p> : null}
             </div>

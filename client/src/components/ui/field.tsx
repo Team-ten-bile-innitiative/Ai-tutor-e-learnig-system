@@ -4,18 +4,18 @@ import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const fieldClass =
-  "h-11 w-full rounded-xl border border-line bg-white px-3 text-sm font-bold text-[#0F172A] outline-none transition placeholder:font-semibold placeholder:text-slate-400 hover:border-slate-400 focus:border-[#7C3AED] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60";
+  "h-11 w-full rounded-xl border border-line bg-white px-3 text-sm font-bold text-[#0F172A] outline-none transition placeholder:font-semibold placeholder:text-slate-400 hover:border-slate-400 focus:border-[#2563EB] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60";
 
 export const textareaClass =
-  "min-h-28 w-full rounded-xl border border-line bg-white px-3 py-2 text-sm font-bold text-[#0F172A] outline-none transition placeholder:font-semibold placeholder:text-slate-400 hover:border-slate-400 focus:border-[#7C3AED] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60";
+  "min-h-28 w-full rounded-xl border border-line bg-white px-3 py-2 text-sm font-bold text-[#0F172A] outline-none transition placeholder:font-semibold placeholder:text-slate-400 hover:border-slate-400 focus:border-[#2563EB] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60";
 
 export const fieldWithIconPad = "pl-12";
 export const authFieldPad = "pl-10";
 
 export const fieldIconTone = {
-  purple: "bg-[#EDE9FE] text-[#7C3AED] ring-1 ring-[#7C3AED]/15",
+  purple: "bg-[#DBEAFE] text-[#2563EB] ring-1 ring-[#2563EB]/15",
   blue: "bg-[#DBEAFE] text-[#2563EB] ring-1 ring-[#2563EB]/15",
-  indigo: "bg-[#E0E7FF] text-[#4F46E5] ring-1 ring-[#4F46E5]/15",
+  indigo: "bg-[#DBEAFE] text-[#1D4ED8] ring-1 ring-[#1D4ED8]/15",
   teal: "bg-[#CCFBF1] text-[#0D9488] ring-1 ring-[#0D9488]/15",
   green: "bg-[#DCFCE7] text-[#16A34A] ring-1 ring-[#16A34A]/15",
   amber: "bg-[#FEF3C7] text-[#D97706] ring-1 ring-[#D97706]/15",
@@ -27,9 +27,9 @@ export const fieldIconTone = {
 export type FieldIconTone = keyof typeof fieldIconTone;
 
 export const fieldIconPlain = {
-  purple: "text-[#7C3AED]",
+  purple: "text-[#2563EB]",
   blue: "text-[#2563EB]",
-  indigo: "text-[#4F46E5]",
+  indigo: "text-[#1D4ED8]",
   teal: "text-[#0D9488]",
   green: "text-[#16A34A]",
   amber: "text-[#D97706]",

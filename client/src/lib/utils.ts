@@ -50,3 +50,23 @@ export function formatCompact(n?: number | null) {
   }
   return String(n);
 }
+
+export function splitDescription(text?: string): [string, string] {
+  const raw = String(text || "").trim();
+  if (!raw) return ["", ""];
+  const blocks = raw
+    .split(/\n\s*\n/)
+    .map((p) => p.replace(/\s+/g, " ").trim())
+    .filter(Boolean);
+  if (blocks.length >= 2) return [blocks[0], blocks.slice(1).join(" ")];
+  const sentences = raw.split(/(?<=[.!?])\s+/).map((s) => s.trim()).filter(Boolean);
+  if (sentences.length >= 2) {
+    const mid = Math.ceil(sentences.length / 2);
+    return [sentences.slice(0, mid).join(" "), sentences.slice(mid).join(" ")];
+  }
+  return [raw, ""];
+}
+
+export function joinDescription(first: string, second: string) {
+  return [first.trim(), second.trim()].filter(Boolean).join("\n\n");
+}

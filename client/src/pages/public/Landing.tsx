@@ -49,8 +49,10 @@ export function LandingPage() {
   const [saved, setSaved] = useState<string[]>(() => readSaved());
   const courses = useQuery({
     queryKey: ["landing-courses"],
-    queryFn: async () =>
-      (await api.get("/courses", { params: { status: "published", sort: "popular", limit: 8 } })).data.data as Course[],
+    queryFn: async () => {
+      const rows = ((await api.get("/courses", { params: { status: "published", sort: "newest", limit: 9 } })).data.data || []) as Course[];
+      return rows;
+    },
   });
   const platform = useQuery({
     queryKey: ["public-stats"],
@@ -124,14 +126,14 @@ export function LandingPage() {
 
   return (
     <div>
-      <section className="relative flex min-h-[calc(100dvh-5rem)] flex-col overflow-hidden bg-[#F3EEFF]">
-        <div className="pointer-events-none absolute -left-20 -top-16 h-80 w-80 rounded-full bg-[#C4B5FD]/40 blur-3xl" />
-        <div className="pointer-events-none absolute bottom-10 left-1/3 h-40 w-40 rounded-full bg-[#A78BFA]/30 blur-3xl" />
-        <div className="pointer-events-none absolute right-0 top-10 h-96 w-96 rounded-full bg-[#DDD6FE]/60 blur-3xl" />
+      <section className="relative flex min-h-[calc(100dvh-5rem)] flex-col overflow-hidden bg-[#EFF6FF]">
+        <div className="pointer-events-none absolute -left-20 -top-16 h-80 w-80 rounded-full bg-[#93C5FD]/40 blur-3xl" />
+        <div className="pointer-events-none absolute bottom-10 left-1/3 h-40 w-40 rounded-full bg-[#60A5FA]/30 blur-3xl" />
+        <div className="pointer-events-none absolute right-0 top-10 h-96 w-96 rounded-full bg-[#BFDBFE]/60 blur-3xl" />
         <div className="relative flex min-h-0 flex-1 items-center overflow-hidden">
           <div className="mx-auto grid w-full max-w-6xl items-center gap-8 px-4 py-8 lg:grid-cols-2 lg:gap-12 lg:py-10">
             <div className="flex h-full w-full flex-col justify-center lg:-mr-[100px]">
-              <span className="inline-flex items-center gap-2 text-base font-semibold text-[#6D28D9]">
+              <span className="inline-flex items-center gap-2 text-base font-semibold text-[#1D4ED8]">
                 <Sparkles className="h-5 w-5 fill-amber-400 text-amber-400" />
                 AI-Powered Learning Platform
               </span>
@@ -143,20 +145,14 @@ export function LandingPage() {
                 <div className="mt-9 flex flex-wrap items-center gap-4">
                   <Link
                     to="/courses"
-                    className="group inline-flex h-14 items-center gap-2.5 rounded-lg bg-[#7C3AED] px-7 text-base font-bold text-white opacity-100 shadow-[0_12px_28px_rgba(124,58,237,0.38)] transition hover:bg-[#6D28D9]"
+                    className="group inline-flex h-14 items-center gap-3 rounded-lg bg-[#2563EB] px-7 text-base font-bold text-white opacity-100 transition hover:bg-[#1D4ED8]"
                   >
-                    Start Learning
-                    <GraduationCap className="start-icon h-5 w-5 text-white" strokeWidth={2.6} />
-                  </Link>
-                  <Link
-                    to="/courses"
-                    className="explore-cta group inline-flex h-14 items-center gap-3 rounded-lg border border-[#3E5BFF]/45 py-1 pl-1 pr-5 opacity-100"
-                  >
-                    <span className="explore-ring grid h-11 w-11 shrink-0 place-items-center rounded-full border border-[#3E5BFF]/50 bg-[#3E5BFF]/10">
-                      <BookOpen className="explore-cap h-5 w-5 text-[#3E5BFF]" strokeWidth={2} />
-                    </span>
-                    <span className="whitespace-nowrap text-base font-semibold text-[#3E5BFF]">Explore Courses</span>
-                    <ArrowRight className="explore-arrow h-5 w-5 shrink-0 text-[#3E5BFF]" strokeWidth={2} />
+                    <BookOpen className="h-5 w-5 shrink-0 text-white" strokeWidth={2.4} />
+                    Explore Courses
+                    <ArrowRight
+                      className="h-5 w-5 shrink-0 text-white transition group-hover:translate-x-1"
+                      strokeWidth={2.4}
+                    />
                   </Link>
                 </div>
               </HeroCtaLock>
@@ -177,14 +173,14 @@ export function LandingPage() {
           className="scroll-section relative mx-auto w-full max-w-6xl shrink-0 grid grid-cols-1 gap-4 px-4 pb-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-0"
         >
           {[
-            { n: studentsN, l: "Students", s: "Learning & growing", Icon: UsersRound, num: "text-[#7C3AED]", icon: "stat-icon stat-icon-purple bg-[#7C3AED] shadow-[0_10px_20px_rgba(124,58,237,0.38)]" },
-            { n: coursesN, l: "Courses", s: "Expert crafted", Icon: Library, num: "text-[#2563EB]", icon: "stat-icon stat-icon-blue bg-[#2563EB] shadow-[0_10px_20px_rgba(37,99,235,0.38)]" },
-            { n: satisfactionN, l: "Satisfaction", s: "Happy learners", Icon: Medal, num: "text-[#D97706]", icon: "stat-icon stat-icon-amber bg-[#D97706] shadow-[0_10px_20px_rgba(217,119,6,0.38)]" },
-            { n: platform.data?.support || "24/7", l: "AI Support", s: "Always here to help", Icon: BotMessageSquare, num: "text-[#16A34A]", icon: "stat-icon stat-icon-green bg-[#16A34A] shadow-[0_10px_20px_rgba(22,163,74,0.38)]" },
+            { n: studentsN, l: "Students", s: "Learning & growing", Icon: UsersRound, num: "text-[#2563EB]", icon: "stat-icon stat-icon-blue bg-[#2563EB]" },
+            { n: coursesN, l: "Courses", s: "Expert crafted", Icon: Library, num: "text-[#0D9488]", icon: "stat-icon stat-icon-teal bg-[#0D9488]" },
+            { n: satisfactionN, l: "Satisfaction", s: "Happy learners", Icon: Medal, num: "text-[#D97706]", icon: "stat-icon stat-icon-amber bg-[#D97706]" },
+            { n: platform.data?.support || "24/7", l: "AI Support", s: "Always here to help", Icon: BotMessageSquare, num: "text-[#16A34A]", icon: "stat-icon stat-icon-green bg-[#16A34A]" },
           ].map(({ n, l, s, Icon, num, icon }, i) => (
             <div
               key={l}
-              className={`group/stat flex min-h-[7.5rem] w-full items-center gap-4 rounded-2xl bg-white/70 px-5 py-5 backdrop-blur-sm transition lg:rounded-none lg:bg-transparent lg:px-6 lg:py-2 ${i > 0 ? "lg:border-l lg:border-[#16A34A]/50" : ""}`}
+              className={`group/stat flex min-h-[7.5rem] w-full items-center gap-4 rounded-2xl bg-white px-5 py-5 transition lg:rounded-none lg:bg-transparent lg:px-6 lg:py-2 ${i > 0 ? "lg:border-l lg:border-slate-200" : ""}`}
             >
               <div className={`grid h-14 w-14 shrink-0 place-items-center rounded-full text-white ${icon}`}>
                 <Icon className="h-6 w-6" strokeWidth={2} />
@@ -201,7 +197,7 @@ export function LandingPage() {
 
       <section className="bg-white py-16">
         <div className="mx-auto max-w-6xl px-4">
-        <p className="text-center text-base font-bold uppercase tracking-wider text-[#7C3AED]">How it works</p>
+        <p className="text-center text-base font-bold uppercase tracking-wider text-[#2563EB]">How it works</p>
         <h2 className="mt-2 text-center text-4xl font-bold text-[#0F172A]">Learn in three simple steps</h2>
         <p className="mx-auto mt-3 max-w-2xl text-center text-base text-slate-500">
           Start a course, practice with lessons and quizzes, then get help from AI Tutor whenever you need it.
@@ -209,7 +205,7 @@ export function LandingPage() {
         <div className="relative mt-10 grid gap-6 md:grid-cols-3">
           <div
             aria-hidden
-            className="pointer-events-none absolute top-1/2 right-0 left-0 hidden h-0.5 -translate-y-1/2 bg-[#16A34A] md:block"
+            className="pointer-events-none absolute top-1/2 right-0 left-0 hidden h-0.5 -translate-y-1/2 bg-slate-200 md:block"
           />
           {[
             {
@@ -217,8 +213,8 @@ export function LandingPage() {
               t: "Join a course",
               d: "Browse published courses and start learning immediately.",
               Icon: BookOpenCheck,
-              card: "border-[#DDD6FE] bg-[#F5F3FF]",
-              iconWrap: "step-icon step-icon-purple bg-[#EDE9FE] text-[#7C3AED]",
+              card: "border-[#BFDBFE] bg-[#EFF6FF]",
+              iconWrap: "step-icon step-icon-blue bg-[#DBEAFE] text-[#1D4ED8]",
             },
             {
               n: "02",
@@ -233,8 +229,8 @@ export function LandingPage() {
               t: "Ask the AI Tutor",
               d: "Get context-aware explanations, examples, and what to study next.",
               Icon: BrainCircuit,
-              card: "border-[#BFDBFE] bg-[#EFF6FF]",
-              iconWrap: "step-icon step-icon-blue bg-[#DBEAFE] text-[#2563EB]",
+              card: "border-[#FDE68A] bg-[#FFFBEB]",
+              iconWrap: "step-icon step-icon-amber bg-[#FEF3C7] text-[#D97706]",
             },
           ].map(({ n, t, d, Icon, card, iconWrap }) => (
             <Card
@@ -257,7 +253,7 @@ export function LandingPage() {
 
       <section id="features" className="scroll-section bg-slate-50 py-16">
         <div className="mx-auto max-w-6xl px-4">
-          <p className="text-center text-base font-bold uppercase tracking-wider text-[#7C3AED]">Features</p>
+          <p className="text-center text-base font-bold uppercase tracking-wider text-[#2563EB]">Features</p>
           <h2 className="mt-2 text-center text-4xl font-bold text-[#0F172A]">Everything you need to learn better</h2>
           <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {[
@@ -265,8 +261,8 @@ export function LandingPage() {
                 Icon: BotMessageSquare,
                 t: "AI Tutor",
                 d: "Smart & context-aware help",
-                card: "border-[#DDD6FE] bg-white hover:border-[#C4B5FD]",
-                iconWrap: "feat-icon feat-icon-purple bg-[#EDE9FE] text-[#7C3AED]",
+                card: "border-[#BFDBFE] bg-white hover:border-[#93C5FD]",
+                iconWrap: "feat-icon feat-icon-blue bg-[#DBEAFE] text-[#1D4ED8]",
               },
               {
                 Icon: BookOpenCheck,
@@ -279,8 +275,8 @@ export function LandingPage() {
                 Icon: ClipboardCheck,
                 t: "Quizzes & Assessments",
                 d: "Instant scored results",
-                card: "border-[#BFDBFE] bg-white hover:border-[#93C5FD]",
-                iconWrap: "feat-icon feat-icon-blue bg-[#DBEAFE] text-[#2563EB]",
+                card: "border-[#A5F3FC] bg-white hover:border-[#67E8F9]",
+                iconWrap: "feat-icon feat-icon-cyan bg-[#CFFAFE] text-[#0891B2]",
               },
               {
                 Icon: TrendingUp,
@@ -300,8 +296,8 @@ export function LandingPage() {
                 Icon: Smartphone,
                 t: "Responsive Design",
                 d: "Mobile & tablet ready",
-                card: "border-[#C7D2FE] bg-white hover:border-[#A5B4FC]",
-                iconWrap: "feat-icon feat-icon-indigo bg-[#E0E7FF] text-[#4F46E5]",
+                card: "border-[#FBCFE8] bg-white hover:border-[#F9A8D4]",
+                iconWrap: "feat-icon feat-icon-pink bg-[#FCE7F3] text-[#DB2777]",
               },
               {
                 Icon: ShieldCheck,
@@ -337,17 +333,17 @@ export function LandingPage() {
       </section>
 
       <section id="ai-tutor" className="scroll-section mx-auto max-w-6xl px-4 py-16">
-        <div className="relative overflow-hidden rounded-3xl border border-[#DDD6FE]/70 bg-gradient-to-br from-[#F5F3FF] via-white to-[#EEF2FF] p-6 shadow-[0_16px_40px_rgba(124,58,237,0.1)] sm:p-10 min-h-[500px]">
-          <div className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-[#DDD6FE]/45 blur-3xl" />
+        <div className="relative overflow-hidden rounded-3xl border border-[#BFDBFE]/70 bg-gradient-to-br from-[#EFF6FF] via-white to-[#EFF6FF] p-6 shadow-[0_16px_40px_rgba(37,99,235,0.1)] sm:p-10 min-h-[500px]">
+          <div className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-[#BFDBFE]/45 blur-3xl" />
           <div className="pointer-events-none absolute -bottom-10 left-1/4 h-40 w-40 rounded-full bg-[#BFDBFE]/30 blur-3xl" />
           <div className="relative grid items-stretch gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:gap-12">
             <div className="flex flex-col justify-center">
-              <span className="inline-flex items-center gap-2 text-sm font-bold text-[#6D28D9]">
+              <span className="inline-flex items-center gap-2 text-sm font-bold text-[#1D4ED8]">
                 <BotMessageSquare className="h-4 w-4" strokeWidth={2.25} />
                 AI Tutor
               </span>
               <h2 className="mt-4 text-3xl font-extrabold tracking-tight text-[#0F172A] sm:text-4xl">
-                Your personal <span className="text-[#7C3AED]">learning assistant</span>
+                Your personal <span className="text-[#2563EB]">learning assistant</span>
               </h2>
               <p className="mt-4 max-w-xl text-base font-bold leading-relaxed text-[#475569] sm:text-lg">
                 Ask questions in plain language. The tutor uses your current lesson, learning level, and quiz history to
@@ -356,7 +352,7 @@ export function LandingPage() {
               <Link to="/register" className="mt-8 inline-flex">
                 <Button
                   variant="gradient"
-                  className="group h-12 rounded-[5px] px-6 text-base font-bold shadow-[0_12px_28px_rgba(124,58,237,0.35)]"
+                  className="group h-12 rounded-[5px] px-6 text-base font-bold shadow-[0_12px_28px_rgba(37,99,235,0.35)]"
                 >
                   Ask AI Tutor
                   <BotMessageSquare className="h-4 w-4 transition group-hover:scale-110" strokeWidth={2.25} />
@@ -368,14 +364,14 @@ export function LandingPage() {
                 {
                   Icon: MessageSquareText,
                   t: "Explain this topic simply",
-                  wrap: "ai-prompt-icon ai-prompt-icon-purple bg-[#EDE9FE] text-[#7C3AED]",
-                  card: "hover:border-[#DDD6FE] hover:bg-[#FAF8FF]",
+                  wrap: "ai-prompt-icon ai-prompt-icon-blue bg-[#DBEAFE] text-[#1D4ED8]",
+                  card: "hover:border-[#BFDBFE] hover:bg-[#F8FAFC]",
                 },
                 {
                   Icon: Layers,
                   t: "Give me another example",
-                  wrap: "ai-prompt-icon ai-prompt-icon-blue bg-[#DBEAFE] text-[#2563EB]",
-                  card: "hover:border-[#BFDBFE] hover:bg-[#F8FAFF]",
+                  wrap: "ai-prompt-icon ai-prompt-icon-teal bg-[#CCFBF1] text-[#0D9488]",
+                  card: "hover:border-[#99F6E4] hover:bg-[#F0FDFA]",
                 },
                 {
                   Icon: CircleHelp,
@@ -415,14 +411,14 @@ export function LandingPage() {
               <h2 className="text-3xl font-bold text-[#0F172A]">Courses</h2>
               <p className="mt-1 text-sm font-semibold text-slate-500">Start with published programs from the live catalog.</p>
             </div>
-            <Link to="/courses" className="text-sm font-bold text-[#7C3AED] hover:text-[#6D28D9]">
+            <Link to="/courses" className="text-sm font-bold text-[#2563EB] hover:text-[#1D4ED8]">
               View all
             </Link>
           </div>
           <div className="mt-8">
             {courses.isLoading ? (
-              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-                {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                {[1, 2, 3].map((i) => (
                   <Skeleton key={i} className="h-80 rounded-2xl" />
                 ))}
               </div>
@@ -431,7 +427,7 @@ export function LandingPage() {
             ) : !(courses.data || []).length ? (
               <EmptyState title="No published courses yet." description="Check back soon for new programs." />
             ) : (
-              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
                 {(courses.data || []).map((course) => (
                   <CourseCard
                     key={idOf(course)}
@@ -451,12 +447,12 @@ export function LandingPage() {
 
       <section className="bg-slate-50/30 py-24 text-slate-900 relative overflow-hidden">
         {/* Background glow effects */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-64 bg-purple-100/30 rounded-full blur-3xl -z-10 pointer-events-none" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-64 bg-blue-100/30 rounded-full blur-3xl -z-10 pointer-events-none" />
         
         <div className="mx-auto max-w-6xl px-4 relative z-10">
           <div className="flex flex-col items-center text-center">
-            <span className="inline-flex items-center gap-2 rounded-full bg-purple-100 px-3.5 py-1 text-xs font-bold text-purple-700 mb-4 tracking-wider">
-              <Star className="h-3.5 w-3.5 fill-purple-700" />
+            <span className="inline-flex items-center gap-2 rounded-full bg-blue-100 px-3.5 py-1 text-xs font-bold text-blue-700 mb-4 tracking-wider">
+              <Star className="h-3.5 w-3.5 fill-blue-700" />
               TESTIMONIALS
             </span>
             <h2 className="text-4xl font-extrabold tracking-tight text-[#0F172A] sm:text-5xl">What Our Learners Say</h2>
@@ -464,17 +460,17 @@ export function LandingPage() {
               Real stories from students who are learning smarter with AI.
             </p>
             <div className="mt-8 flex items-center justify-center w-full mx-auto">
-               <div className="h-1 w-8 bg-[#8B5CF6] rounded-full" />
+               <div className="h-1 w-8 bg-[#3B82F6] rounded-full" />
             </div>
           </div>
           
           <div className="mt-16 flex flex-col md:flex-row justify-center gap-6 md:gap-8 items-center relative px-2 sm:px-12 lg:px-16">
             {/* Left arrow */}
-            <div onClick={handlePrevTestimonial} className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 h-12 w-12 bg-white rounded-full shadow-[0_8px_30px_rgba(0,0,0,0.1)] items-center justify-center cursor-pointer text-[#8B5CF6] hover:bg-purple-50 transition border border-slate-100 z-20">
+            <div onClick={handlePrevTestimonial} className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 h-12 w-12 bg-white rounded-full shadow-[0_8px_30px_rgba(0,0,0,0.1)] items-center justify-center cursor-pointer text-[#3B82F6] hover:bg-blue-50 transition border border-slate-100 z-20">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
             </div>
             {/* Right arrow */}
-            <div onClick={handleNextTestimonial} className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 h-12 w-12 bg-white rounded-full shadow-[0_8px_30px_rgba(0,0,0,0.1)] items-center justify-center cursor-pointer text-[#8B5CF6] hover:bg-purple-50 transition border border-slate-100 z-20">
+            <div onClick={handleNextTestimonial} className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 h-12 w-12 bg-white rounded-full shadow-[0_8px_30px_rgba(0,0,0,0.1)] items-center justify-center cursor-pointer text-[#3B82F6] hover:bg-blue-50 transition border border-slate-100 z-20">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
             </div>
 
@@ -482,17 +478,19 @@ export function LandingPage() {
               <div 
                 key={key} 
                 className={cn(
-                  "relative rounded-[1.5rem] bg-white p-7 sm:p-8 flex flex-col h-full w-full max-w-[360px] flex-1 transition-all duration-300",
-                  isCenter ? "shadow-[0_16px_50px_rgba(124,58,237,0.1)] ring-1 ring-purple-100 scale-100 md:scale-105 z-10 md:-translate-y-2" : "shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-slate-100 hover:shadow-md"
+                  "group/quote relative rounded-[1.5rem] bg-white p-7 sm:p-8 flex flex-col h-full w-full max-w-[360px] flex-1 transition-all duration-300",
+                  isCenter
+                    ? "shadow-[0_16px_50px_rgba(37,99,235,0.1)] ring-1 ring-blue-100 scale-100 md:scale-105 z-10 md:-translate-y-2 hover:ring-blue-300 hover:shadow-[0_24px_60px_rgba(37,99,235,0.2)] md:hover:-translate-y-3"
+                    : "shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-slate-100 hover:-translate-y-1.5 hover:border-blue-200 hover:shadow-[0_18px_44px_rgba(37,99,235,0.14)]"
                 )}
               >
                 {isCenter && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 h-8 w-8 bg-purple-600 rounded-lg flex items-center justify-center shadow-lg shadow-purple-600/30 rotate-12">
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 h-8 w-8 bg-blue-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-600/30 rotate-12">
                     <Star className="h-4 w-4 text-white fill-white -rotate-12" />
                   </div>
                 )}
                 <div className="flex items-start justify-between">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="currentColor" className="text-[#8B5CF6]">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="currentColor" className="text-[#3B82F6] transition-transform duration-300 group-hover/quote:scale-110">
                     <path d="M9.983 3v7.391C9.983 16.095 6.252 19.961 2 21L.823 18.574c3.242-.781 4.962-3.238 5.485-5.965H2V3h7.983zm12.017 0v7.391c0 5.704-3.731 9.57-7.983 10.609l-1.177-2.426c3.242-.781 4.962-3.238 5.485-5.965H14V3h8z"/>
                   </svg>
                   <div className="flex items-center gap-1">
@@ -501,14 +499,14 @@ export function LandingPage() {
                 </div>
                 <p className="mt-5 text-[15px] leading-relaxed text-slate-700 font-medium flex-grow">{quote}</p>
                 <div className="mt-6 flex items-center gap-4">
-                  <div className="h-12 w-12 rounded-full overflow-hidden bg-purple-100 flex-shrink-0 border border-slate-100">
+                  <div className="h-12 w-12 rounded-full overflow-hidden bg-blue-100 flex-shrink-0 border border-slate-100">
                     <img src={avatar} alt={name} className="h-full w-full object-cover" />
                   </div>
                   <div>
                     <h4 className="font-bold text-slate-900">{name}</h4>
-                    <p className="text-[11px] text-purple-600 font-semibold mb-1">{role}</p>
+                    <p className="text-[11px] text-blue-600 font-semibold mb-1">{role}</p>
                     <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-50 px-2 py-0.5 text-[10px] font-bold text-slate-500 border border-slate-100">
-                      <GraduationCap className="h-3 w-3 text-purple-500" />
+                      <GraduationCap className="h-3 w-3 text-blue-500" />
                       {subject}
                     </span>
                   </div>
@@ -522,7 +520,7 @@ export function LandingPage() {
               <div
                 key={idx}
                 onClick={() => setActiveTestimonial(idx)}
-                className={cn("h-2.5 w-2.5 rounded-full cursor-pointer transition", idx === activeTestimonial ? "bg-[#8B5CF6]" : "bg-slate-200 hover:bg-purple-200")}
+                className={cn("h-2.5 w-2.5 rounded-full cursor-pointer transition", idx === activeTestimonial ? "bg-[#3B82F6]" : "bg-slate-200 hover:bg-blue-200")}
               />
             ))}
           </div>

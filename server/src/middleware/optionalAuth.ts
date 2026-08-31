@@ -10,7 +10,7 @@ export async function optionalAuth(req: Request, _res: Response, next: NextFunct
     if (!token) return next();
     const payload = jwt.verify(token, env.jwtSecret) as { id: string };
     const user = await User.findById(payload.id).select("role email fullName status");
-    if (user && user.status === "active") {
+    if (user && user.status !== "inactive") {
       req.user = { id: user.id, role: user.role, email: user.email, fullName: user.fullName };
     }
   } catch {

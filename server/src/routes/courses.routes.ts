@@ -10,6 +10,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { notFound } from "../utils/ApiError.js";
 import { paginate, searchFilter } from "../utils/helpers.js";
 import { logActivity } from "../services/activity.service.js";
+import { deleteCourseTree, deleteCoursesByCategory, keepNamedOrFirstCourses } from "../services/courseCleanup.service.js";
 
 export const coursesRouter = Router();
 
@@ -20,14 +21,16 @@ const CATEGORY_ALIASES: Record<string, string[]> = {
   "AI & ML": ["AI & ML", "AI", "Machine Learning"],
 };
 
+const emptyToUndef = (v: unknown) => (typeof v === "string" && !v.trim() ? undefined : v);
+
 const courseSchema = z.object({
-  title: z.string().min(2),
-  description: z.string().min(10),
-  category: z.string().min(2),
+  title: z.string().trim().min(2),
+  description: z.string().trim().min(2),
+  category: z.string().trim().min(2),
   level: z.enum(["beginner", "intermediate", "advanced"]),
-  thumbnailUrl: z.string().optional(),
-  duration: z.string().optional(),
-  instructorName: z.string().optional(),
+  thumbnailUrl: z.preprocess(emptyToUndef, z.string().optional()),
+  duration: z.preprocess(emptyToUndef, z.string().optional()),
+  instructorName: z.preprocess(emptyToUndef, z.string().optional()),
   status: z.enum(["draft", "published", "archived"]).optional(),
   learningObjectives: z.array(z.string()).optional(),
 });
@@ -64,7 +67,20 @@ coursesRouter.get(
     const [lessonCounts, quizCounts, enrollCounts, studentProgress, studentEnrolls] = await Promise.all([
       Lesson.aggregate([{ $match: { course: { $in: ids } } }, { $group: { _id: "$course", count: { $sum: 1 } } }]),
       Quiz.aggregate([{ $match: { course: { $in: ids } } }, { $group: { _id: "$course", count: { $sum: 1 } } }]),
-      Enrollment.aggregate([{ $match: { course: { $in: ids } } }, { $group: { _id: "$course", count: { $sum: 1 } } }]),
+      Enrollment.aggregate([
+        { $match: { course: { $in: ids }, status: { $ne: "dropped" } } },
+        {
+          $lookup: {
+            from: "users",
+            localField: "student",
+            foreignField: "_id",
+            as: "user",
+          },
+        },
+        { $unwind: "$user" },
+        { $match: { "user.role": "student", "user.status": { $ne: "inactive" } } },
+        { $group: { _id: { $toString: "$course" }, count: { $sum: 1 } } },
+      ]),
       req.user?.role === "student"
         ? CourseProgress.find({ student: req.user.id, course: { $in: ids } })
         : Promise.resolve([]),
@@ -80,15 +96,16 @@ coursesRouter.get(
 
     const mapped = rawItems.map((c) => {
       const obj = c.toObject();
+      const cid = String(c._id);
       const creator = obj.createdBy as { fullName?: string; avatarUrl?: string } | undefined;
-      const progress = pMap[c.id];
+      const progress = pMap[cid] || pMap[c.id];
       return {
         ...obj,
         id: c.id,
-        lessons: lMap[c.id] || 0,
-        quizzes: qMap[c.id] || 0,
-        enrollmentCount: eMap[c.id] || 0,
-        enrolled: enrolledSet.has(c.id),
+        lessons: lMap[cid] || lMap[c.id] || 0,
+        quizzes: qMap[cid] || qMap[c.id] || 0,
+        enrollmentCount: eMap[cid] || eMap[c.id] || 0,
+        enrolled: enrolledSet.has(cid) || enrolledSet.has(c.id),
         completed: Boolean(progress?.completed),
         progressPercentage: progress?.progressPercentage ?? 0,
         instructor: {
@@ -119,12 +136,36 @@ coursesRouter.get(
     if (req.user?.role !== "admin" && course.status !== "published") throw notFound("Course not found");
     const lessonFilter = req.user?.role === "admin" ? { course: course.id } : { course: course.id, status: "published" };
     const quizFilter = req.user?.role === "admin" ? { course: course.id } : { course: course.id, status: "published" };
-    const [lessons, quizzes, enrolled] = await Promise.all([
+    const [lessons, quizzes, enrolled, enrollCount] = await Promise.all([
       Lesson.find(lessonFilter).sort({ orderIndex: 1 }),
       Quiz.find(quizFilter).sort({ createdAt: 1 }),
       req.user ? Enrollment.findOne({ student: req.user.id, course: course.id }) : null,
+      Enrollment.aggregate([
+        { $match: { course: course._id, status: { $ne: "dropped" } } },
+        {
+          $lookup: {
+            from: "users",
+            localField: "student",
+            foreignField: "_id",
+            as: "user",
+          },
+        },
+        { $unwind: "$user" },
+        { $match: { "user.role": "student", "user.status": { $ne: "inactive" } } },
+        { $count: "n" },
+      ]),
     ]);
-    res.json({ success: true, data: { ...course.toObject(), id: course.id, lessons, quizzes, enrolled: Boolean(enrolled) } });
+    res.json({
+      success: true,
+      data: {
+        ...course.toObject(),
+        id: course.id,
+        lessons,
+        quizzes,
+        enrolled: Boolean(enrolled),
+        enrollmentCount: enrollCount[0]?.n || 0,
+      },
+    });
   })
 );
 
@@ -134,9 +175,50 @@ coursesRouter.post(
   requireRole("admin"),
   asyncHandler(async (req, res) => {
     const data = courseSchema.parse(req.body);
-    const course = await Course.create({ ...data, createdBy: req.user!.id });
+    const course = await Course.create({ ...data, status: data.status || "published", createdBy: req.user!.id });
     await logActivity(req.user!.id, "course.created", "course", course.id);
     res.status(201).json({ success: true, message: "Course created", data: course });
+  })
+);
+
+coursesRouter.post(
+  "/rename-category",
+  protect,
+  requireRole("admin"),
+  asyncHandler(async (req, res) => {
+    const { from, to } = z.object({ from: z.string().min(2), to: z.string().min(2) }).parse(req.body);
+    const result = await Course.updateMany(
+      { category: { $regex: new RegExp(`^${from.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, "i") } },
+      { $set: { category: to.trim() } }
+    );
+    await logActivity(req.user!.id, "category.renamed", "course", from);
+    res.json({ success: true, message: "Category updated", data: { updated: result.modifiedCount } });
+  })
+);
+
+coursesRouter.post(
+  "/purge-category",
+  protect,
+  requireRole("admin"),
+  asyncHandler(async (req, res) => {
+    const { category } = z.object({ category: z.string().min(1) }).parse(req.body);
+    const result = await deleteCoursesByCategory(category);
+    await logActivity(req.user!.id, "category.purged", "course", category);
+    res.json({ success: true, message: "Category removed", data: result });
+  })
+);
+
+coursesRouter.post(
+  "/keep-three",
+  protect,
+  requireRole("admin"),
+  asyncHandler(async (req, res) => {
+    const result = await keepNamedOrFirstCourses(
+      ["Biology Foundations", "Business Communications", "Marketing Strategy"],
+      3
+    );
+    await logActivity(req.user!.id, "courses.pruned", "course", "keep-three");
+    res.json({ success: true, message: "Extra courses removed", data: result });
   })
 );
 
@@ -158,10 +240,9 @@ coursesRouter.delete(
   protect,
   requireRole("admin"),
   asyncHandler(async (req, res) => {
-    const course = await Course.findByIdAndDelete(req.params.id);
+    const course = await Course.findById(req.params.id);
     if (!course) throw notFound("Course not found");
-    await Lesson.deleteMany({ course: course.id });
-    await Quiz.deleteMany({ course: course.id });
+    await deleteCourseTree(course.id);
     await logActivity(req.user!.id, "course.deleted", "course", course.id);
     res.json({ success: true, message: "Course deleted" });
   })

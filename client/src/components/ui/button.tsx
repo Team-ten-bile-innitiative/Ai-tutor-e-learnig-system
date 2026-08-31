@@ -7,12 +7,12 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-white hover:bg-indigo-700 shadow-sm",
-        gradient: "bg-gradient-to-r from-[#7C3AED] to-[#6366F1] text-white hover:from-[#6D28D9] hover:to-[#4F46E5] shadow-[0_10px_24px_rgba(124,58,237,0.35)]",
+        default: "bg-primary text-white hover:bg-blue-700 shadow-sm",
+        gradient: "bg-[#2563EB] text-white hover:bg-[#1D4ED8] shadow-[0_8px_18px_rgba(37,99,235,0.25)]",
         secondary: "bg-white text-[#111827] border border-slate-200 hover:bg-slate-50",
         ghost: "hover:bg-primary-soft text-ink",
         danger: "bg-danger text-white hover:bg-red-700",
-        ai: "bg-ai text-white hover:bg-violet-700",
+        ai: "bg-ai text-white hover:bg-blue-700",
         success: "bg-success text-white hover:bg-emerald-700",
       },
       size: {

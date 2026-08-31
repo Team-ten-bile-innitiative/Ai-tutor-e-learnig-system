@@ -2,15 +2,17 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
-import { ErrorState, PageHeader, ProgressBar, Spinner } from "@/components/shared";
+import { ConfirmDialog, ErrorState, PageHeader, ProgressBar, Spinner } from "@/components/shared";
 import { Badge, Card, CardBody, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Select } from "@/components/ui/field";
 import { formatDate, initials } from "@/lib/utils";
+import { useState } from "react";
 
 export function AdminStudentDetailPage() {
   const { id } = useParams();
   const qc = useQueryClient();
+  const [statusAction, setStatusAction] = useState<"activate" | "deactivate" | null>(null);
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["student", id],
     queryFn: async () => (await api.get(`/admin/students/${id}`)).data.data,
@@ -27,6 +29,17 @@ export function AdminStudentDetailPage() {
     mutationFn: () => api.post(`/admin/students/${id}/reset-password`),
     onSuccess: (res) => toast.success(res.data.data?.resetUrl || "Reset link generated"),
   });
+  const toggleStatus = useMutation({
+    mutationFn: (action: "activate" | "deactivate") => api.post(`/admin/students/${id}/${action}`),
+    onSuccess: (_d, action) => {
+      toast.success(action === "activate" ? "Student activated" : "Student deactivated");
+      setStatusAction(null);
+      qc.invalidateQueries({ queryKey: ["student", id] });
+      qc.invalidateQueries({ queryKey: ["students"] });
+      qc.invalidateQueries({ queryKey: ["admin-dashboard"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
 
   if (isLoading) return <Spinner />;
   if (error) return <ErrorState message={error.message} onRetry={() => refetch()} />;
@@ -42,10 +55,20 @@ export function AdminStudentDetailPage() {
           </div>
           <p className="mt-4 font-semibold">{s.email}</p>
           <p className="text-sm text-muted">Joined {formatDate(s.createdAt)}</p>
-          <div className="mt-3 flex gap-2">
+          <div className="mt-3 flex flex-wrap items-center gap-2">
             <Badge tone={s.status === "active" ? "green" : "amber"}>{s.status}</Badge>
             <Badge tone="indigo">{s.learningLevel}</Badge>
           </div>
+          <Button
+            className="mt-4 w-full"
+            variant={s.status === "active" ? "secondary" : "default"}
+            onClick={() => setStatusAction(s.status === "active" ? "deactivate" : "activate")}
+          >
+            {s.status === "active" ? "Deactivate student" : "Activate student"}
+          </Button>
+          <Button className="mt-2 w-full" variant="secondary" onClick={() => reset.mutate()}>
+            Send password reset
+          </Button>
           <div className="mt-6 grid grid-cols-2 gap-3 text-sm">
             <div>
               <p className="text-muted">Avg score</p>
@@ -64,9 +87,6 @@ export function AdminStudentDetailPage() {
               <p className="text-xl font-bold">{data.streak?.currentStreak || 0}</p>
             </div>
           </div>
-          <Button className="mt-6 w-full" variant="secondary" onClick={() => reset.mutate()}>
-            Send password reset
-          </Button>
         </Card>
         <div className="space-y-4 lg:col-span-2">
           <Card>
@@ -133,6 +153,19 @@ export function AdminStudentDetailPage() {
           </Card>
         </div>
       </div>
+      <ConfirmDialog
+        open={Boolean(statusAction)}
+        title={statusAction === "activate" ? "Activate this student?" : "Deactivate this student?"}
+        explanation={
+          statusAction === "activate"
+            ? "This student will regain access to the learning platform."
+            : "This student will no longer be able to access the learning platform."
+        }
+        danger={statusAction === "deactivate"}
+        confirmLabel={statusAction === "activate" ? "Activate" : "Deactivate"}
+        onClose={() => setStatusAction(null)}
+        onConfirm={() => statusAction && toggleStatus.mutate(statusAction)}
+      />
     </div>
   );
 }

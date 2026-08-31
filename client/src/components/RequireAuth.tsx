@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { Spinner } from "@/components/shared";
 import type { Role } from "@/types";
@@ -20,7 +20,9 @@ export function RequireAuth({ role, children }: { role: Role; children: ReactNod
 
 export function RedirectIfAuthed({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
+  const location = useLocation();
   if (loading) return null;
-  if (user) return <Navigate to={user.role === "admin" ? "/admin/dashboard" : "/student/dashboard"} replace />;
+  const creating = location.pathname === "/register" && sessionStorage.getItem("et-signup-flow") === "1";
+  if (user && !creating) return <Navigate to={user.role === "admin" ? "/admin/dashboard" : "/student/dashboard"} replace />;
   return <>{children}</>;
 }

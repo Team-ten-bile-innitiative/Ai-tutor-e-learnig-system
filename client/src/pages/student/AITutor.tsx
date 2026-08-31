@@ -112,7 +112,7 @@ export function AIChatPanel({ courseId, lessonId, quizId }: { courseId?: string;
                     <button className="flex-1 truncate px-2 py-2 text-left text-sm" onClick={() => setActive(c._id)}>
                       {renameId === c._id ? (
                         <input
-                          className="w-full rounded-[5px] border border-line px-1 font-bold outline-none hover:border-[#7C3AED] focus:border-[#7C3AED]"
+                          className="w-full rounded-[5px] border border-line px-1 font-bold outline-none hover:border-[#2563EB] focus:border-[#2563EB]"
                           defaultValue={c.title}
                           autoFocus
                           onBlur={async (e) => {
@@ -200,7 +200,7 @@ export function AIChatPanel({ courseId, lessonId, quizId }: { courseId?: string;
             }}
           >
             <input
-              className="h-11 flex-1 rounded-[5px] border border-line px-3 text-sm font-bold outline-none hover:border-[#7C3AED] focus:border-[#7C3AED]"
+              className="h-11 flex-1 rounded-[5px] border border-line px-3 text-sm font-bold outline-none hover:border-[#2563EB] focus:border-[#2563EB]"
               placeholder="Ask anything about this lesson..."
               value={text}
               onChange={(e) => setText(e.target.value)}

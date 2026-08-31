@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Flame, Trophy } from "lucide-react";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
@@ -24,12 +24,13 @@ export function StudentProgressPage() {
           <p className="text-sm text-muted">Overall completion</p>
           <ProgressRing value={data.overall} />
         </Card>
-        <StatCard label="Average score" value={`${data.averageScore}%`} icon={<Trophy className="h-5 w-5" />} />
+        <StatCard label="Avg score" value={`${data.averageScore}%`} hint="Across submitted quizzes" iconTone="amber" icon={<Trophy className="h-5 w-5" strokeWidth={2.2} />} />
         <StatCard
-          label="Learning streak"
-          value={`🔥 ${data.streak?.currentStreak || 0}`}
+          label="Streak"
+          value={data.streak?.currentStreak || 0}
           hint={`Longest ${data.streak?.longestStreak || 0} · ${formatMinutes(data.studyTime)} studied`}
-          icon={<Flame className="h-5 w-5" />}
+          iconTone="orange"
+          icon={<Flame className="h-5 w-5" strokeWidth={2.2} />}
         />
       </div>
       <Card className="mt-6">
@@ -39,12 +40,19 @@ export function StudentProgressPage() {
         <CardBody className="h-72">
           {data.overTime.length ? (
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={data.overTime}>
-                <XAxis dataKey="date" tickFormatter={(v) => new Date(v).toLocaleDateString()} />
-                <YAxis domain={[0, 100]} />
+              <AreaChart data={data.overTime} margin={{ top: 8, right: 12, left: -12, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="progressFill" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#16A34A" stopOpacity={0.28} />
+                    <stop offset="100%" stopColor="#16A34A" stopOpacity={0.02} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid stroke="#F1F5F9" vertical={false} />
+                <XAxis dataKey="date" tickFormatter={(v) => new Date(v).toLocaleDateString()} tick={{ fill: "#64748B", fontSize: 12 }} axisLine={false} tickLine={false} />
+                <YAxis domain={[0, 100]} tick={{ fill: "#64748B", fontSize: 12 }} axisLine={false} tickLine={false} />
                 <Tooltip />
-                <Line dataKey="percentage" stroke="#4f46e5" />
-              </LineChart>
+                <Area type="monotone" dataKey="percentage" name="Score" stroke="#16A34A" fill="url(#progressFill)" strokeWidth={2.5} dot={{ r: 3, fill: "#fff", stroke: "#16A34A", strokeWidth: 2 }} />
+              </AreaChart>
             </ResponsiveContainer>
           ) : (
             <p className="text-sm text-muted">No learning activity yet.</p>

@@ -2,7 +2,7 @@ import mongoose, { Schema } from "mongoose";
 import bcrypt from "bcryptjs";
 
 export type UserRole = "admin" | "student";
-export type AccountStatus = "active" | "inactive";
+export type AccountStatus = "active" | "inactive" | "pending";
 export type LearningLevel = "beginner" | "intermediate" | "advanced";
 
 export interface UserDoc extends mongoose.Document {
@@ -34,7 +34,7 @@ const userSchema = new Schema<UserDoc>(
     password: { type: String, required: true, minlength: 8, select: false },
     avatarUrl: { type: String, default: "" },
     role: { type: String, enum: ["admin", "student"], default: "student", index: true },
-    status: { type: String, enum: ["active", "inactive"], default: "active", index: true },
+    status: { type: String, enum: ["active", "inactive", "pending"], default: "active", index: true },
     learningLevel: { type: String, enum: ["beginner", "intermediate", "advanced"], default: "beginner" },
     preferredLanguage: { type: String, default: "en" },
     emailVerified: { type: Boolean, default: false },

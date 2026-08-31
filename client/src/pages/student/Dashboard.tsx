@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { Bot, BookOpen, CheckCircle2, Flame, Trophy } from "lucide-react";
 import { api } from "@/lib/api";
@@ -10,10 +10,19 @@ import { idOf } from "@/lib/utils";
 import type { Course } from "@/types";
 
 export function StudentDashboardPage() {
-  const { user } = useAuth();
+  const { user, refresh } = useAuth();
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["student-dashboard"],
     queryFn: async () => (await api.get("/learning/me/dashboard")).data.data,
+  });
+  useQuery({
+    queryKey: ["me-pending-poll"],
+    queryFn: async () => {
+      await refresh();
+      return true;
+    },
+    enabled: user?.status === "pending",
+    refetchInterval: 10000,
   });
   if (isLoading) return <DashboardSkeleton />;
   if (error) return <ErrorState message={error.message} onRetry={() => refetch()} />;
@@ -22,11 +31,17 @@ export function StudentDashboardPage() {
   return (
     <div>
       <PageHeader title={`Welcome back, ${user?.fullName?.split(" ")[0]}!`} description="Keep your streak going and ask the AI Tutor whenever you get stuck." />
+      {user?.status === "pending" ? (
+        <Card className="mb-4 border-amber-200 bg-amber-50 p-4">
+          <p className="text-sm font-semibold text-amber-900">Your registration is pending review.</p>
+          <p className="mt-1 text-sm text-amber-800">You can use your dashboard while an administrator approves your account.</p>
+        </Card>
+      ) : null}
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="Courses in Progress" value={data.coursesInProgress} icon={<BookOpen className="h-5 w-5" />} />
-        <StatCard label="Completed Courses" value={data.completedCourses} icon={<CheckCircle2 className="h-5 w-5" />} />
-        <StatCard label="Average Score" value={`${data.averageScore}%`} icon={<Trophy className="h-5 w-5" />} />
-        <StatCard label="Learning Streak" value={`🔥 ${data.streak?.currentStreak || 0} days`} hint={`Longest ${data.streak?.longestStreak || 0}`} icon={<Flame className="h-5 w-5" />} />
+        <StatCard label="In progress" value={data.coursesInProgress} hint="Courses underway" iconTone="blue" icon={<BookOpen className="h-5 w-5" strokeWidth={2.2} />} />
+        <StatCard label="Completed" value={data.completedCourses} hint="Finished courses" iconTone="green" icon={<CheckCircle2 className="h-5 w-5" strokeWidth={2.2} />} />
+        <StatCard label="Avg score" value={`${data.averageScore}%`} hint="Quiz average" iconTone="amber" icon={<Trophy className="h-5 w-5" strokeWidth={2.2} />} />
+        <StatCard label="Streak" value={data.streak?.currentStreak || 0} hint={`Longest ${data.streak?.longestStreak || 0} days`} iconTone="orange" icon={<Flame className="h-5 w-5" strokeWidth={2.2} />} />
       </div>
       <div className="mt-6 grid gap-4 lg:grid-cols-3">
         <Card className="p-5 lg:col-span-2">

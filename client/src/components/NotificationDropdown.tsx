@@ -12,7 +12,7 @@ export function NotificationDropdown() {
   const { data } = useQuery({
     queryKey: ["notifications"],
     queryFn: async () => (await api.get("/notifications")).data.data as { items: NotificationItem[]; unread: number },
-    refetchInterval: 30000,
+    refetchInterval: 12000,
   });
   const mark = useMutation({
     mutationFn: () => api.post("/notifications/read"),

@@ -51,33 +51,33 @@ export function ContactPage() {
   }
 
   const contacts = [
-    { Icon: MailCheck, t: "Email Us", d: "support@edututor.ai", href: "mailto:support@edututor.ai", wrap: "contact-icon contact-icon-purple bg-[#EDE9FE] text-[#7C3AED]" },
+    { Icon: MailCheck, t: "Email Us", d: "support@edututor.ai", href: "mailto:support@edututor.ai", wrap: "contact-icon contact-icon-blue bg-[#DBEAFE] text-[#1D4ED8]" },
     { Icon: PhoneCall, t: "Call Us", d: "+1 (555) 120-4488", href: "tel:+15551204488", wrap: "contact-icon contact-icon-green bg-[#DCFCE7] text-[#16A34A]" },
-    { Icon: MessagesSquare, t: "Live Chat", d: "Available 24/7 with AI Tutor", href: chatTo, wrap: "contact-icon contact-icon-blue bg-[#DBEAFE] text-[#2563EB]" },
+    { Icon: MessagesSquare, t: "Live Chat", d: "Available 24/7 with AI Tutor", href: chatTo, wrap: "contact-icon contact-icon-orange bg-[#FFEDD5] text-[#EA580C]" },
   ];
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
-      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#F5F3FF] via-white to-[#EEF2FF] px-5 py-8 sm:px-8">
-        <div className="pointer-events-none absolute -right-10 -top-16 h-56 w-56 rounded-full bg-[#DDD6FE]/50 blur-3xl" />
-        <div className="pointer-events-none absolute bottom-0 left-1/3 h-40 w-40 rounded-full bg-[#C4B5FD]/25 blur-3xl" />
+      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#EFF6FF] via-white to-[#EFF6FF] px-5 py-8 sm:px-8">
+        <div className="pointer-events-none absolute -right-10 -top-16 h-56 w-56 rounded-full bg-[#BFDBFE]/50 blur-3xl" />
+        <div className="pointer-events-none absolute bottom-0 left-1/3 h-40 w-40 rounded-full bg-[#93C5FD]/25 blur-3xl" />
         <div className="relative grid items-center gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-10">
           <div>
-            <span className="inline-flex items-center gap-2 rounded-full bg-[#EDE9FE] px-3.5 py-1.5 text-sm font-bold text-[#6D28D9]">
+            <span className="inline-flex items-center gap-2 rounded-full bg-[#FEF3C7] px-3.5 py-1.5 text-sm font-bold text-[#D97706]">
               <Headphones className="h-4 w-4" strokeWidth={2.4} />
               We're Here to Help
             </span>
             <h1 className="mt-4 text-4xl font-extrabold tracking-tight text-[#0F172A] sm:text-5xl">
-              Contact <span className="bg-gradient-to-r from-[#7C3AED] to-[#2563EB] bg-clip-text text-transparent">Us</span>
+              Contact <span className="text-[#0D9488]">Us</span>
             </h1>
             <p className="mt-3 max-w-xl text-base leading-relaxed text-slate-500">
               Questions about Interactive Ai learing tutor system? Reach the team anytime for courses, quizzes, or your AI tutor.
             </p>
             <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
               {[
-                { Icon: LayoutDashboard, t: "Admin Control",   d: "Full platform & content management",  wrap: "bg-[#FFEDD5] text-[#EA580C]" },
-                { Icon: GraduationCap,   t: "Student Learning", d: "Courses, quizzes & progress tracking", wrap: "bg-[#DCFCE7] text-[#16A34A]" },
-                { Icon: BrainCircuit,    t: "AI Tutor",         d: "24/7 intelligent personalized help",  wrap: "bg-[#EDE9FE] text-[#7C3AED]" },
+                { Icon: LayoutDashboard, t: "Admin Control",   d: "Full platform & content management",  wrap: "bg-[#EDE9FE] text-[#7C3AED]" },
+                { Icon: GraduationCap,   t: "Student Learning", d: "Courses, quizzes & progress tracking", wrap: "bg-[#CCFBF1] text-[#0D9488]" },
+                { Icon: BrainCircuit,    t: "AI Tutor",         d: "24/7 intelligent personalized help",  wrap: "bg-[#FEF3C7] text-[#D97706]" },
               ].map(({ Icon, t, d, wrap }) => (
                 <div key={t} className="group/card flex flex-col items-center justify-center gap-2.5 rounded-2xl bg-white px-4 py-4 text-center shadow-[0_8px_22px_rgba(15,23,42,0.06)] min-h-[100px]">
                   <span className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl transition-all duration-300 group-hover/card:scale-110 group-hover/card:rotate-6 group-hover/card:shadow-lg ${wrap}`}>
@@ -110,7 +110,7 @@ export function ContactPage() {
             <div className="mt-5 flex w-full flex-col gap-3">
               {contacts.map(({ Icon, t, d, href, wrap }) => {
                 const className =
-                  "group/touch flex w-full items-center gap-3 rounded-2xl border border-slate-100 bg-[#FAF8FF] px-3 py-3 transition hover:border-[#DDD6FE] hover:bg-[#F5F3FF]";
+                  "group/touch flex w-full items-center gap-3 rounded-2xl border border-slate-100 bg-[#F8FAFC] px-3 py-3 transition hover:border-[#BFDBFE] hover:bg-[#EFF6FF]";
                   const body = (
                     <>
                       <span className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl ${wrap}`}>
@@ -120,7 +120,7 @@ export function ContactPage() {
                         <span className="block font-bold text-[#111827]">{t}</span>
                         <span className="block truncate text-sm text-slate-500">{d}</span>
                       </span>
-                      <ChevronRight className="h-5 w-5 shrink-0 text-slate-300 transition group-hover:text-[#7C3AED]" />
+                      <ChevronRight className="h-5 w-5 shrink-0 text-slate-300 transition group-hover:text-[#2563EB]" />
                     </>
                   );
                   return href.startsWith("mailto:") || href.startsWith("tel:") ? (
@@ -134,14 +134,14 @@ export function ContactPage() {
                   );
                 })}
               </div>
-              <div className="group/touch mt-5 flex w-full flex-col gap-3 rounded-2xl bg-[#F3EEFF] p-3 sm:flex-row sm:items-center">
-                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-[#7C3AED] to-[#2563EB] text-white shadow-md">
+              <div className="group/touch mt-5 flex w-full flex-col gap-3 rounded-2xl bg-[#F0FDF4] p-3 sm:flex-row sm:items-center">
+                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[#16A34A] text-white">
                   <BrainCircuit className="h-5 w-5" strokeWidth={2.2} />
                 </span>
-                <p className="min-w-0 flex-1 text-sm font-semibold text-[#4C1D95]">Need immediate help? Chat with our AI Tutor now</p>
+                <p className="min-w-0 flex-1 text-sm font-semibold text-[#166534]">Need immediate help? Chat with our AI Tutor now</p>
                 <Link
                   to={chatTo}
-                  className="inline-flex h-10 shrink-0 items-center gap-2 rounded-xl bg-[#7C3AED] px-3.5 text-sm font-bold text-white shadow-[0_8px_18px_rgba(124,58,237,0.28)] hover:bg-[#6D28D9]"
+                  className="inline-flex h-10 shrink-0 items-center gap-2 rounded-xl border border-[#16A34A] bg-white px-3.5 text-sm font-bold text-[#16A34A] transition hover:bg-[#F0FDF4]"
                 >
                   <span className="h-2 w-2 rounded-full bg-emerald-400" />
                   Open Live Chat
@@ -157,14 +157,14 @@ export function ContactPage() {
                   <label className="grid gap-1.5 text-sm font-semibold text-slate-700">
                     Full Name
                     <span className="relative">
-                      <FieldIcon icon={UserRound} tone="purple" />
+                      <FieldIcon icon={UserRound} tone="rose" />
                       <input required value={fullName} onChange={(e) => setFullName(e.target.value)} className={`${fieldClass} ${fieldWithIconPad} bg-[#F8FAFC] focus:bg-white`} placeholder="Your name" />
                     </span>
                   </label>
                   <label className="grid gap-1.5 text-sm font-semibold text-slate-700">
                     Email Address
                     <span className="relative">
-                      <FieldIcon icon={MailCheck} tone="blue" />
+                      <FieldIcon icon={MailCheck} tone="teal" />
                       <input required type="email" value={email} onChange={(e) => setEmail(e.target.value)} className={`${fieldClass} ${fieldWithIconPad} bg-[#F8FAFC] focus:bg-white`} placeholder="you@email.com" />
                     </span>
                   </label>
@@ -172,7 +172,7 @@ export function ContactPage() {
               <label className="grid w-full gap-1.5 text-sm font-semibold text-slate-700">
                 Message
                   <span className="relative">
-                    <FieldIcon icon={MessageSquare} tone="teal" align="top" />
+                    <FieldIcon icon={MessageSquare} tone="amber" align="top" />
                     <textarea
                       required
                       minLength={10}
@@ -189,7 +189,7 @@ export function ContactPage() {
               <button
                 type="submit"
                 disabled={sending}
-                className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#7C3AED] text-base font-bold text-white shadow-[0_10px_24px_rgba(124,58,237,0.28)] hover:bg-[#6D28D9] disabled:opacity-60"
+                className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#0D9488] text-base font-bold text-white transition hover:bg-[#0F766E] disabled:opacity-60"
               >
                 <Send className="h-4 w-4" />
                 {sending ? "Sending..." : "Send Message"}
